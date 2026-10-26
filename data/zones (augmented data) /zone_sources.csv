@@ -1,0 +1,13 @@
+zone_id,what_it_supports,source,url
+Z1,"KM11 incident, 20 May 2025, ~8:15pm, near JRTB Memorial Monument",Scoop,https://www.scoop.my/news/257568/another-gerik-jeli-highway-elephant-encounter-herd-attacks-vios-startled-by-honking/
+Z1,"KM11 herd damaged four cars, 23 Oct 2024 (Perhilitan Perak director quoted)","Malay Mail, 8 Nov 2024",https://www.malaymail.com/news/malaysia/2024/11/08/what-to-do-when-elephants-cross-gerik-highway-perak-perhilitan-tells-drivers-to-coexist-until-wildlife-sanctuary-completes-in-2029/155831
+Z1,KM11 vehicle damaged by elephant (May 2025); Perhilitan: attacks mostly dusk to early morning,"paultan.org (citing Bernama), 21 May 2025",https://paultan.org/2025/05/21/motorists-in-small-vehicles-advised-to-avoid-east-west-highway-at-night-due-to-possible-wildlife-encounters/
+Z1,"KM11 calf killed by heavy vehicle, 17 Jan 2021 (accident table)",TCER.MY,https://www.tcer.my/gajah-melintas/
+Z2,"KM31 near Tasik Banding, motorcyclist hit elephant, ~9pm","Malay Mail, 12 Dec 2025",https://www.malaymail.com/news/malaysia/2025/12/12/motorcyclist-injured-after-colliding-with-elephant-on-gerik-stretch-of-east-west-highway/201616
+Z3,"KM50 calf killed by SUV while crossing, April 2024","Malay Mail, 8 Nov 2024",https://www.malaymail.com/news/malaysia/2024/11/08/what-to-do-when-elephants-cross-gerik-highway-perak-perhilitan-tells-drivers-to-coexist-until-wildlife-sanctuary-completes-in-2029/155831
+Z4,"KM80 calf killed by lorry, ~2:50am, 11 May 2025 (Gerik police chief)","Utusan Malaysia, 11 May 2025",https://www.utusan.com.my/nasional/2025/05/anak-gajah-meluru-keluar-dari-hutan-sebelum-dilanggar/
+ALL,"Active hours: 81% of GPS-tracked crossings between 7pm and 7am (Wadey et al., Biological Conservation)","Elephants, Roads and Drivers: Case Study of Gerik-Jeli Highway",https://www.researchgate.net/publication/327763955_Elephants_Roads_and_Drivers_Case_Study_of_Gerik-Jeli_Highway
+ALL,Active hours: 17 elephants GPS-tracked for 5 years; most crossings at night,"University of Nottingham press release, Jan 2018",https://www.nottingham.ac.uk/news/pressreleases/2018/january/why-did-the-elephant-cross-the-road-in-malaysia-they-are-trying-to-find-the-answer..aspx
+ALL,Active hours: elephants cross from dusk until dawn (Malay),TCER.MY,https://www.tcer.my/gajah-melintas/
+ALL,KM numbering: Kilometre Zero of Federal Route 4 is at Gerik,Wikipedia: Malaysia Federal Route 4,https://en.wikipedia.org/wiki/Malaysia_Federal_Route_4
+ALL,"Road shape for KM-to-coordinate conversion (route Gerik to Jeli, 125.2 km)",OSRM routing on OpenStreetMap data,"https://router.project-osrm.org/route/v1/driving/101.13333,5.41667;101.83333,5.70000?overview=simplified&geometries=geojson"

@@ -1,0 +1,5 @@
+zone_id,name,road_km,km_start,km_end,center_lat,center_lon,buffer_km,active_start,active_end,evidence
+Z1,KM11 near Kuala Rui,11,9.0,13.0,5.46596,101.17158,1.0,19:00,07:00,3 reported incidents: calf killed (Jan 2021); herd damaged 4 cars (23 Oct 2024); herd attacked a car ~8:15pm (20 May 2025)
+Z2,KM31 near Tasik Banding,31,29.0,33.0,5.53333,101.26245,1.0,19:00,07:00,Motorcyclist collided with elephant ~9pm (10 Dec 2025)
+Z3,KM50,50,48.0,52.0,5.56473,101.36287,1.0,19:00,07:00,Calf killed by SUV while crossing (Apr 2024)
+Z4,KM80,80,78.0,82.0,5.59922,101.5784,1.0,19:00,07:00,Calf killed by lorry ~2:50am (11 May 2025)

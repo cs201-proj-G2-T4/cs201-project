@@ -1,0 +1,162 @@
+id,geonameid,name,state,district_code,district,feature_code,latitude,longitude,population,selected_because
+0,1769924,Kampong Chap,Kelantan,0301,Bachok,PPL,6.05,102.35,2780,has population
+1,1769798,Kampong Cherang Hangus,Kelantan,0301,Bachok,PPL,6.03333,102.35,1123,has population
+2,1768729,Kampong Jerus,Kelantan,0301,Bachok,PPL,5.93333,102.3,0,district coverage
+3,1767963,Kampong Kuala Sering,Kelantan,0301,Bachok,PPL,6.15,102.33333,0,district coverage
+4,1763179,Kampong Tekah Ayer Merah,Kelantan,0301,Bachok,PPL,5.91667,102.46667,0,district coverage
+5,1762604,Kampong Tok Ajam,Kelantan,0301,Bachok,PPL,5.9,102.38333,0,district coverage
+6,1736382,Kampung Ger,Kelantan,0301,Bachok,PPL,5.99585,102.42643,0,district coverage
+7,1734651,Gua Musang,Kelantan,0302,Gua Musang,PPL,4.88441,101.96857,19731,has population
+8,12808701,Hendrop,Kelantan,0302,Gua Musang,PPL,4.719,101.5521,1295,has population
+9,1768699,Kampung Jubai,Kelantan,0302,Gua Musang,PPL,5.0142,102.4067,0,district coverage
+10,7461955,Kampung Kuala Layang,Kelantan,0302,Gua Musang,PPL,5.133,101.5877,0,district coverage
+11,1735052,Kampung Lentung,Kelantan,0302,Gua Musang,PPL,5.16667,102.1,0,district coverage
+12,1766343,Kampung Pakoh,Kelantan,0302,Gua Musang,PPL,4.78108,102.29579,0,district coverage
+13,1762229,Kampung Wias,Kelantan,0302,Gua Musang,PPL,5.092,101.846,0,district coverage
+14,1769659,Kampong Delong,Kelantan,0303,Jeli,PPL,5.7,101.66667,0,district coverage
+15,1769120,Kampong Gunong,Kelantan,0303,Jeli,PPL,5.71667,101.75,5800,has population
+16,1734460,Kampung Air Lanas,Kelantan,0303,Jeli,PPL,5.77613,101.88504,4645,has population
+17,1770256,Kampung Bukit Jering,Kelantan,0303,Jeli,PPL,5.47746,101.90779,2396,has population
+18,1734464,Kampung Jeli,Kelantan,0303,Jeli,PPL,5.7,101.83333,17734,has population
+19,1734346,Kampung Kuala Balah,Kelantan,0303,Jeli,PPL,5.41667,101.91667,10198,has population
+20,7068170,Kampung Rangka Baru,Kelantan,0303,Jeli,PPL,5.6035,101.8859,0,district coverage
+21,1768664,Kampong Kadok,Kelantan,0304,Kota Bharu,PPL,6.0,102.25,19233,has population
+22,1766249,Kampong Pangkal Kalong,Kelantan,0304,Kota Bharu,PPL,5.91667,102.21667,39904,has population
+23,1763436,Kampong Tanjong Chat,Kelantan,0304,Kota Bharu,PPL,6.15,102.25,5462,has population
+24,13100481,Kampung Wakaf Stan,Kelantan,0304,Kota Bharu,PPLS,6.07985,102.28969,5823,has population
+25,1736376,Kota Bharu,Kelantan,0304,Kota Bharu,PPLA,6.12361,102.24333,568900,has population
+26,1735533,Melor,Kelantan,0304,Kota Bharu,PPL,5.96561,102.29422,5777,has population
+27,1736363,Pengkalan Chepa,Kelantan,0304,Kota Bharu,PPL,6.17471,102.28802,14000,has population
+28,1750582,Peringat,Kelantan,0304,Kota Bharu,PPL,6.03333,102.28333,23288,has population
+29,1735121,Dabong,Kelantan,0305,Kuala Krai,PPL,5.37676,102.00968,3097,has population
+30,1764515,Kampong Serasa,Kelantan,0305,Kuala Krai,PPL,5.18333,102.08333,0,district coverage
+31,1735127,Kampong Tanjong Batuisee Kampung Tanjung Batu,Kelantan,0305,Kuala Krai,PPL,5.4,102.23333,0,district coverage
+32,1735116,Kampung Tembeling,Kelantan,0305,Kuala Krai,PPL,5.26667,102.28333,0,district coverage
+33,1761572,Kebun Raja,Kelantan,0305,Kuala Krai,PPL,5.66667,102.2,0,district coverage
+34,1735118,Kuala Geris,Kelantan,0305,Kuala Krai,PPL,5.38333,102.06667,2000,has population
+35,1735572,Kuala Krai,Kelantan,0305,Kuala Krai,PPL,5.5313,102.19925,105007,has population
+36,1768794,Kampong Jenerih,Kelantan,0306,Machang,PPL,5.8,102.2,0,district coverage
+37,1768426,Kampong Kelubi,Kelantan,0306,Machang,PPL,5.63333,102.13333,0,district coverage
+38,1767484,Kampong Lepan Agor,Kelantan,0306,Machang,PPL,5.66667,102.21667,0,district coverage
+39,1767440,Kampong Limau Nipis,Kelantan,0306,Machang,PPL,5.73333,102.25,0,district coverage
+40,1766000,Kampong Pasir Senang,Kelantan,0306,Machang,PPL,5.73333,102.15,0,district coverage
+41,1763145,Kampong Telaga Tujoh,Kelantan,0306,Machang,PPL,5.8,102.26667,0,district coverage
+42,1735543,Pulai Chondong,Kelantan,0306,Machang,PPLA3,5.87133,102.23177,0,district coverage
+43,1771111,Kampong Banggol Petai,Kelantan,0307,Pasir Mas,PPL,5.9,102.08333,0,district coverage
+44,1769282,Kampong Gondang,Kelantan,0307,Pasir Mas,PPL,5.93333,102.2,0,district coverage
+45,1767436,Kampong Limau Purut,Kelantan,0307,Pasir Mas,PPL,5.90716,101.93721,0,district coverage
+46,1764300,Kampong Singgang,Kelantan,0307,Pasir Mas,PPL,6.13333,102.08333,0,district coverage
+47,7068039,Kampung Gual Lemsa,Kelantan,0307,Pasir Mas,PPL,5.98644,102.06099,0,district coverage
+48,1736372,Pasir Mas,Kelantan,0307,Pasir Mas,PPLA2,6.04934,102.13987,230424,has population
+49,1736370,Rantau Panjang,Kelantan,0307,Pasir Mas,PPL,6.0219,101.9767,2364,has population
+50,1783230,Alor Nibong,Kelantan,0308,Pasir Puteh,PPL,5.76667,102.46667,0,district coverage
+51,1771450,Kampong Ayer Terjun,Kelantan,0308,Pasir Puteh,PPL,5.9,102.45,0,district coverage
+52,1769244,Kampong Gong Kelih,Kelantan,0308,Pasir Puteh,PPL,5.76667,102.33333,0,district coverage
+53,1765183,Kampong Pupoh,Kelantan,0308,Pasir Puteh,PPL,5.91667,102.28333,0,district coverage
+54,1764663,Kampong Seligi,Kelantan,0308,Pasir Puteh,PPL,5.85,102.31667,0,district coverage
+55,1768543,Kampung Kayu Kelat,Kelantan,0308,Pasir Puteh,PPL,5.83525,102.52915,0,district coverage
+56,1735545,Pasir Puteh,Kelantan,0308,Pasir Puteh,PPL,5.83333,102.4,137400,has population
+57,1768863,Kampong Jegor,Kelantan,0309,Tanah Merah,PPL,5.8,102.01667,0,district coverage
+58,1766502,Kampong Padang Kijang,Kelantan,0309,Tanah Merah,PPL,5.88333,102.08333,0,district coverage
+59,1764048,Kampong Sungai Dulang,Kelantan,0309,Tanah Merah,PPL,5.88333,102.18333,0,district coverage
+60,7068149,Kampung Air Limau,Kelantan,0309,Tanah Merah,PPL,5.652,102.0002,0,district coverage
+61,1770315,Kampung Bukit Bunga,Kelantan,0309,Tanah Merah,PPL,5.83369,101.90033,2300,has population
+62,1735565,Kampung Panjang,Kelantan,0309,Tanah Merah,PPL,5.70398,102.09731,0,district coverage
+63,1735553,Tanah Merah,Kelantan,0309,Tanah Merah,PPL,5.8,102.15,29116,has population
+64,1770553,Kampong Berok,Kelantan,0310,Tumpat,PPL,6.13333,102.13333,0,district coverage
+65,1768178,Kampong Kok Pasir,Kelantan,0310,Tumpat,PPL,6.16667,102.21667,0,district coverage
+66,1766741,Kampong Naga Ibu,Kelantan,0310,Tumpat,PPL,6.16128,102.08591,0,district coverage
+67,1736352,Kampung Pengkalan Kubur,Kelantan,0310,Tumpat,PPL,6.23215,102.09463,0,district coverage
+68,7068001,Pulau Buaya,Kelantan,0310,Tumpat,PPL,6.21131,102.24088,0,district coverage
+69,1736356,Tumpat,Kelantan,0310,Tumpat,PPLA2,6.19775,102.17098,12280,has population
+70,1736366,Wakaf Baharu,Kelantan,0310,Tumpat,PPL,6.11667,102.2,17033,has population
+71,1735546,Cherang Ruku,Kelantan,unknown,unknown,PPL,5.87062,102.49479,14656,has population
+72,1762598,Kampong Tok Bali,Kelantan,unknown,unknown,PPL,5.89174,102.48356,4200,has population
+73,13117826,Behrang Stesen,Perak,0901,Batang Padang,PPL,3.74438,101.45125,1754,has population
+74,1735287,Bidur,Perak,0901,Batang Padang,PPL,4.11667,101.28333,30016,has population
+75,1735276,Cenderiang,Perak,0901,Batang Padang,PPL,4.26667,101.23333,1400,has population
+76,13118194,Proton City,Perak,0901,Batang Padang,PPL,3.74287,101.5352,12009,has population
+77,1732931,Slim River,Perak,0901,Batang Padang,PPL,3.83333,101.4,6297,has population
+78,1732927,Sungkai,Perak,0901,Batang Padang,PPL,4.0,101.31667,32700,has population
+79,1732672,Tanjong Malim,Perak,0901,Batang Padang,PPL,3.681,101.5198,66103,has population
+80,1735283,Tapah,Perak,0901,Batang Padang,PPL,4.18333,101.26667,295,has population
+81,1735282,Tapah Road,Perak,0901,Batang Padang,PPL,4.16667,101.2,27863,has population
+82,1735179,Bagan Datuk,Perak,0902,Hilir Perak,PPL,3.9899,100.7819,13700,has population
+83,1732915,Cangkat Jong,Perak,0902,Hilir Perak,PPL,3.9851,101.1237,25618,has population
+84,1735188,Hutan Melintang,Perak,0902,Hilir Perak,PPL,3.8766,100.9328,28357,has population
+85,1769833,Kampong Chenderong Balai,Perak,0902,Hilir Perak,PPL,4.13333,101.08333,3400,has population
+86,1769741,Kampung Chui Chak,Perak,0902,Hilir Perak,PPL,4.0453,101.1715,3272,has population
+87,1742906,Sungai Sumun,Perak,0902,Hilir Perak,PPL,3.8915,100.8532,10781,has population
+88,1735459,Teluk Intan,Perak,0902,Hilir Perak,PPL,4.02219,101.02083,232800,has population
+89,1735512,Fort Tapong,Perak,0903,Ulu Perak,PPL,5.66667,101.38333,0,district coverage
+90,1734372,Gerik,Perak,0903,Ulu Perak,PPL,5.41667,101.13333,30868,has population
+91,1773114,Janing,Perak,0903,Ulu Perak,PPL,5.23333,101.1,0,district coverage
+92,1764923,Kampong Sain,Perak,0903,Ulu Perak,PPL,5.81667,101.58333,0,district coverage
+93,1735518,Keruh,Perak,0903,Ulu Perak,PPL,5.71667,101.0,14661,has population
+94,1767492,Lenggong,Perak,0903,Ulu Perak,PPL,5.10633,100.96792,12722,has population
+95,1734377,Temengor,Perak,0903,Ulu Perak,PPL,5.33333,101.36667,0,district coverage
+96,1765063,Kampong Rantau Panjang Ulu Kerian,Perak,0904,Kampar,PPL,5.3,100.75,0,district coverage
+97,1762325,Kampong Ulu Mengkuang,Perak,0904,Kampar,PPL,5.21667,100.76667,0,district coverage
+98,1770685,Kampung Belukar Hantu,Perak,0904,Kampar,PPL,5.26633,100.82976,0,district coverage
+99,1768450,Kampung Kelian Gunung,Perak,0904,Kampar,PPL,5.15002,100.89073,0,district coverage
+100,6873252,Kampung Sungai Malau Luar,Perak,0904,Kampar,PPL,5.1333,100.64401,0,district coverage
+101,1734402,Redang Panjang,Perak,0904,Kampar,PPL,5.11667,100.78333,2400,has population
+102,1734399,Selama,Perak,0904,Kampar,PPL,5.2236,100.69262,34800,has population
+103,1734408,Alur Pongsu,Perak,0905,Kerian,PPL,5.03333,100.58333,2858,has population
+104,1734409,Bagan Serai,Perak,0905,Kerian,PPL,5.0108,100.54101,20476,has population
+105,1735090,Bagan Tiang,Perak,0905,Kerian,PPL,5.11667,100.41667,13538,has population
+106,1735421,Kampung Gula,Perak,0905,Kerian,PPL,4.93333,100.46667,1805,has population
+107,1735092,Kuala Kurau,Perak,0905,Kerian,PPL,5.01821,100.42824,31065,has population
+108,1735089,Parit Buntar,Perak,0905,Kerian,PPL,5.12671,100.49316,27313,has population
+109,1734576,Simpang Empat,Perak,0905,Kerian,PPL,4.95,100.63333,58004,has population
+110,1743520,Simpang Tiga,Perak,0905,Kerian,PPL,5.03357,100.44041,227,has population
+111,1735091,Tanjung Piandang,Perak,0905,Kerian,PPL,5.07236,100.38105,8352,has population
+112,1735268,Batu Gajah,Perak,0906,Kinta,PPL,4.46916,101.04107,46183,has population
+113,7473418,Bercham,Perak,0906,Kinta,PPL,4.6411,101.1393,150000,has population
+114,1734626,Chemor,Perak,0906,Kinta,PPL,4.7211,101.1189,30461,has population
+115,1777206,Chenderong,Perak,0906,Kinta,PPL,4.4091,101.0495,3000,has population
+116,1735267,Gopeng,Perak,0906,Kinta,PPL,4.4715,101.1663,1330,has population
+117,1734634,Ipoh,Perak,0906,Kinta,PPLA,4.5841,101.0829,759952,has population
+118,1735274,Kampar,Perak,0906,Kinta,PPL,4.3,101.15,19056,has population
+119,7473443,Kampung Manjoi,Perak,0906,Kinta,PPL,4.6192,101.0685,86266,has population
+120,1734637,Lahat,Perak,0906,Kinta,PPL,4.5388,101.0365,30694,has population
+121,1735272,Malim Nawar,Perak,0906,Kinta,PPL,4.3506,101.1188,1477,has population
+122,1735258,Mambang Di Awan,Perak,0906,Kinta,PPL,4.26667,101.15,13300,has population
+123,1734639,Menglembu,Perak,0906,Kinta,PPL,4.5594,101.0484,2600,has population
+124,1735434,Pusing,Perak,0906,Kinta,PPL,4.4941,101.0079,6780,has population
+125,1742800,Sungai Durian,Perak,0906,Kinta,PPL,4.31667,101.05,2253,has population
+126,1735265,Sungai Siput,Perak,0906,Kinta,PPL,4.3945,101.1947,49000,has population
+127,1734629,Tanjung Rambutan,Perak,0906,Kinta,PPL,4.6706,101.1546,1311,has population
+128,1767127,Kampong Mandah,Perak,0907,Kuala Kangsar,PPL,4.56667,100.93333,0,district coverage
+129,1734582,Kampung Enggor,Perak,0907,Kuala Kangsar,PPL,4.82577,100.97038,2342,has population
+130,7473316,Kampung Lawai,Perak,0907,Kuala Kangsar,PPL,4.7931,101.2291,0,district coverage
+131,1734611,Kampung Sungai Semaliang,Perak,0907,Kuala Kangsar,PPL,4.98333,101.21667,0,district coverage
+132,1734599,Kuala Kangsar,Perak,0907,Kuala Kangsar,PPL,4.76667,100.93333,39331,has population
+133,1757062,Lombong Ha Chu,Perak,0907,Kuala Kangsar,PPL,4.53333,100.75,0,district coverage
+134,1734594,Padang Rengas,Perak,0907,Kuala Kangsar,PPL,4.76667,100.85,38294,has population
+135,1782571,Au Long,Perak,0908,Larut Matang & Selama,PPL,4.85,100.71667,5000,has population
+136,1734579,Batu Kurau,Perak,0908,Larut Matang & Selama,PPL,4.96667,100.8,22307,has population
+137,1734575,Kampung Cangkat Jering,Perak,0908,Larut Matang & Selama,PPL,4.78333,100.71667,6936,has population
+138,7791657,Kampung Kuala Sepetang,Perak,0908,Larut Matang & Selama,PPL,4.5429,100.6597,1264,has population
+139,1734577,Kamunting,Perak,0908,Larut Matang & Selama,PPL,4.88333,100.73333,36243,has population
+140,1743587,Simpang,Perak,0908,Larut Matang & Selama,PPL,4.81667,100.7,5132,has population
+141,1734586,Taiping,Perak,0908,Larut Matang & Selama,PPL,4.85,100.73333,217647,has population
+142,1734595,Terung,Perak,0908,Larut Matang & Selama,PPL,4.71667,100.73333,1476,has population
+143,1782227,Ayer Tawar,Perak,0909,Manjung (Dinding),PPL,4.3055,100.7618,3050,has population
+144,1734607,Beruas,Perak,0909,Manjung (Dinding),PPL,4.5,100.78333,9268,has population
+145,1769948,Kampung Cangkat Keruing,Perak,0909,Manjung (Dinding),PPL,4.3775,100.6891,1174,has population
+146,1735450,Lumut,Perak,0909,Manjung (Dinding),PPL,4.2323,100.6298,39595,has population
+147,1735447,Pangkor,Perak,0909,Manjung (Dinding),PPL,4.2134,100.5747,10000,has population
+148,1752256,Pantai Remis,Perak,0909,Manjung (Dinding),PPL,4.4557,100.6288,16317,has population
+149,7792200,Seri Manjung,Perak,0909,Manjung (Dinding),PPL,4.1987,100.67,100000,has population
+150,1735453,Sitiawan,Perak,0909,Manjung (Dinding),PPL,4.2168,100.6996,156234,has population
+151,13118053,Gelung Pepuyu,Perak,0910,Perak Tengah,PPL,4.36792,100.8201,2285,has population
+152,1763019,Kampong Telok Memali,Perak,0910,Perak Tengah,PPL,4.11667,101.01667,0,district coverage
+153,1735439,Kampung Lambor Kanan,Perak,0910,Perak Tengah,PPL,4.2664,100.9044,2276,has population
+154,7633264,Kampung Rahmat,Perak,0910,Perak Tengah,PPL,4.1145,100.786,0,district coverage
+155,1763035,Kampung Teluk Ketapang,Perak,0910,Perak Tengah,PPL,3.9778,100.8769,0,district coverage
+156,1735433,Parit,Perak,0910,Perak Tengah,PPL,4.48333,100.91667,60988,has population
+157,11184859,Seri Iskandar,Perak,0910,Perak Tengah,PPL,4.35993,100.98491,14827,has population
+158,1769612,Kampong Dungun,Perak,unknown,unknown,PPL,3.21667,101.31667,58674,has population
+159,1744366,Serdang,Perak,unknown,unknown,PPL,5.20372,100.62476,6793,has population
+160,1738403,Ulu Kinta,Perak,unknown,unknown,PPL,4.66667,101.21667,9799,has population

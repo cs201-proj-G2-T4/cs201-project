@@ -1,0 +1,34 @@
+Candidate populated places (class P, kept codes) in Perak + Kelantan: 3494
+Selected towns: 161  {'has population': 101, 'district coverage': 60}
+  Perak: 88, Kelantan: 73
+Detour factor: 1.3, min gap: 1.0 km, min per district: 7
+
+Towns per district:
+  Kelantan  Bachok                       7
+  Kelantan  Gua Musang                   7
+  Kelantan  Jeli                         7
+  Kelantan  Kota Bharu                   8
+  Kelantan  Kuala Krai                   7
+  Kelantan  Machang                      7
+  Kelantan  Pasir Mas                    7
+  Kelantan  Pasir Puteh                  7
+  Kelantan  Tanah Merah                  7
+  Kelantan  Tumpat                       7
+  Kelantan  unknown                      2
+  Perak     Batang Padang                9
+  Perak     Hilir Perak                  7
+  Perak     Kampar                       7
+  Perak     Kerian                       9
+  Perak     Kinta                        16
+  Perak     Kuala Kangsar                7
+  Perak     Larut Matang & Selama        8
+  Perak     Manjung (Dinding)            8
+  Perak     Perak Tengah                 7
+  Perak     Ulu Perak                    7
+  Perak     unknown                      3
+
+Sample road-distance estimates (compare with Google Maps):
+  Ipoh -> Kota Bharu: 278.2 km (straight line 214.0 km)
+  Gerik -> Kampung Jeli: 108.7 km (straight line 83.6 km)
+  Ipoh -> Gerik: 120.6 km (straight line 92.7 km)
+  Kota Bharu -> Kampung Jeli: 85.0 km (straight line 65.4 km)

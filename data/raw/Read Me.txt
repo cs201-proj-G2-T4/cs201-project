@@ -1,0 +1,7 @@
+1. The dataset was obtained from the following source: https://www.geonames.org/
+2. MY.txt was got from the zip file at https://download.geonames.org/export/dump/
+
+3. Metadata.txt has the metadata content downloaded from the Source GeoNames
+4. MY-All-columns_with_header.xlsx contains the same data in My.txt but with headers added. 
+5. FeatureStatistic (if required) is present at
+https://www.geonames.org/statistics/malaysia.html

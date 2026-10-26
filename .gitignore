@@ -1,0 +1,31 @@
+# Compiled Java
+*.class
+*.jar
+*.war
+*.ear
+out/
+bin/
+target/
+build/
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+
+# Python / conda (in case of scripts or notebooks)
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Environment / secrets
+.env

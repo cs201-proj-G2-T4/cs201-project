@@ -1,0 +1,5 @@
+Zones: Z1, Z2, Z3, Z4 from ..\data\zones(augmented data)
+Settings: start 08:00 at Ipoh, speed 60 km/h, sample every 0.5 km
+Towns: 161
+Baseline NN: 4056.8 km, 67.6 h, 2 unsafe legs, runtime 2.75 ms
+Unsafe legs by start hour: 00h=1, 01h=1, 02h=1, 03h=2, 04h=2, 05h=2, 06h=2, 07h=3, 08h=2, 09h=2, 10h=2, 11h=3, 12h=3, 13h=3, 14h=3, 15h=3, 16h=3, 17h=2, 18h=3, 19h=3, 20h=2, 21h=2, 22h=2, 23h=2

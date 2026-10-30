@@ -1,0 +1,126 @@
+Loaded 4 zones from data/zones(augmented data)\zones.csv
+Loaded 36 road points from data/zones(augmented data)\zone_points.csv
+  zone_id  road_km  center_lat  center_lon  radius_road_km   a_s  a_e
+0      Z1       11     5.46596   101.17158             3.0  1140  420
+1      Z2       31     5.53333   101.26245             3.0  1140  420
+2      Z3       50     5.56473   101.36287             3.0  1140  420
+3      Z4       80     5.59922   101.57840             3.0  1140  420
+Detected admin1 codes -> Perak: 07  Kelantan: 03 (verify against admin1CodesASCII.txt)
+gateway GERIK from dataset: (5.41667, 101.13333)
+gateway JELI from dataset: (5.7, 101.83333)
+gateway GM from dataset: (4.88441, 101.96857)
+{'K': 30, 'P': 30} towns; 60 total
+                     town      lat        lon region  population
+0              Kota Bharu  6.12361  102.24333      K      568900
+1               Pasir Mas  6.04934  102.13987      K      230424
+2             Pasir Puteh  5.83333  102.40000      K      137400
+3              Kuala Krai  5.53130  102.19925      K      105007
+4  Kampong Pangkal Kalong  5.91667  102.21667      K       39904
+ km0  road_km  straight_km  ratio
+ 0.0      9.0          5.2   1.74
+ 0.0     16.0         10.4   1.53
+ 0.0     15.0          8.5   1.77
+ 0.0     26.0         20.7   1.26
+ 0.0     44.0         28.8   1.53
+
+ km0  road_km  straight_km  ratio
+12.5     21.5          5.2   4.15
+12.5     16.0         10.4   1.53
+12.5     15.0          8.5   1.77
+12.5     26.0         20.7   1.26
+12.5     31.5         28.8   1.09
+
+start: Ipoh | towns: 60 | corridor winding ratio: 1.43 | zone discs in grid: 36
+    start                       method  total_h  wait_h  n_waits  n_detours  detour_extra_km  total_km  unsafe_legs  unsafe_samples
+0   06:00  Baseline NN (ignores zones)    35.99    0.00        0          0              0.0    2159.2            1             284
+1   06:00                 A: wait only    40.19    4.20        1          0              0.0    2159.3            0               0
+2   06:00               A: detour only    34.60    0.00        0          1            -83.2    2075.7            0               0
+3   06:00             A: wait + detour    34.60    0.00        0          1            -83.2    2075.7            0               0
+4   08:00  Baseline NN (ignores zones)    35.99    0.00        0          0              0.0    2159.2            1             284
+5   08:00                 A: wait only    38.19    2.20        1          0              0.0    2159.3            0               0
+6   08:00               A: detour only    34.60    0.00        0          1            -83.2    2075.7            0               0
+7   08:00             A: wait + detour    34.60    0.00        0          1            -83.2    2075.7            0               0
+8   18:00  Baseline NN (ignores zones)    35.99    0.00        0          0              0.0    2159.2            1             284
+9   18:00                 A: wait only    40.41    0.43        1          0              0.0    2398.5            0               0
+10  18:00               A: detour only    38.97    0.00        0          1            -60.4    2338.0            0               0
+11  18:00             A: wait + detour    38.97    0.00        0          1            -60.4    2338.0            0               0
+Detour costs +121 km vs Route 4 for this pair (+121 min at 60 km/h). Detour wins whenever the wait is longer than that.
+   zones  discs  grid_ms  brute_ms  speedup  grid_build_ms  grid_peak_KB  identical_results
+0      4     36     35.4      12.5     0.35            0.8           3.2               True
+1     50     50     13.4      34.4     2.57            1.6          28.5               True
+2    500    500     67.3     666.8     9.90           27.6         202.9               True
+3   5000   5000    509.6   12248.3    24.03          157.0         688.3               True
+Cell-size sweep (500 synthetic zones):
+   cell_km  occupied_cells  avg_zones_per_cell  build_ms  query_ms  peak_KB
+0        1           10986                1.14      93.3     133.0   2195.2
+1        2            3764                1.20      29.8      65.5    667.5
+2        5            1138                1.42      14.5      62.8    200.5
+3       10             440                2.26      12.8     167.9     87.5
+4       20             142                5.25      13.7     480.3     36.3
+5       50              30               19.43      13.6    2595.2     20.8
+                                   quantity  model_km  google_km  error_pct
+0    Bachok <-> Changkat Jering via Route 4     328.4        344       -4.5
+1  Bachok <-> Changkat Jering via Route 185     398.8        410       -2.7
+2                      Gua Musang -> Bachok     181.8        193       -5.8
+Detour extra (model): 70.5 km | Google: 66 km
+                       frm                      to    depart    arrive  wait_min    type  route     km
+0                     Ipoh          Kampung Manjoi  d0 08:00  d0 08:05         0  direct  local    5.5
+1           Kampung Manjoi                 Bercham  d0 08:05  d0 08:16         0  direct  local   10.7
+2                  Bercham                  Chemor  d0 08:16  d0 08:28         0  direct  local   11.9
+3                   Chemor           Kuala Kangsar  d0 08:28  d0 08:55         0  direct  local   27.5
+4            Kuala Kangsar           Padang Rengas  d0 08:55  d0 09:07         0  direct  local   12.0
+5            Padang Rengas                 Taiping  d0 09:07  d0 09:28         0  direct  local   20.7
+6                  Taiping               Kamunting  d0 09:28  d0 09:33         0  direct  local    4.8
+7                Kamunting              Batu Kurau  d0 09:33  d0 09:48         0  direct  local   15.4
+8               Batu Kurau           Simpang Empat  d0 09:48  d0 10:12         0  direct  local   24.1
+9            Simpang Empat             Bagan Serai  d0 10:12  d0 10:28         0  direct  local   15.9
+10             Bagan Serai             Kuala Kurau  d0 10:28  d0 10:44         0  direct  local   16.3
+11             Kuala Kurau            Parit Buntar  d0 10:44  d0 11:03         0  direct  local   18.3
+12            Parit Buntar                  Selama  d0 11:03  d0 11:35         0  direct  local   31.9
+13                  Selama                   Gerik  d0 11:35  d0 12:44         0  direct  local   69.3
+14                   Gerik            Kampung Jeli  d0 12:44  d0 14:50         0  direct     R4  126.0
+15            Kampung Jeli          Kampong Gunong  d0 14:50  d0 15:02         0  direct  local   12.2
+16          Kampong Gunong       Kampung Air Lanas  d0 15:02  d0 15:23         0  direct  local   21.2
+17       Kampung Air Lanas     Kampung Bukit Bunga  d0 15:23  d0 15:32         0  direct  local    8.6
+18     Kampung Bukit Bunga          Rantau Panjang  d0 15:32  d0 16:01         0  direct  local   29.3
+19          Rantau Panjang               Pasir Mas  d0 16:01  d0 16:25         0  direct  local   23.8
+20               Pasir Mas            Wakaf Baharu  d0 16:25  d0 16:38         0  direct  local   13.0
+21            Wakaf Baharu       Kampung Wakaf Sku  d0 16:38  d0 16:44         0  direct  local    6.1
+22       Kampung Wakaf Sku              Kota Bharu  d0 16:44  d0 16:45         0  direct  local    1.1
+23              Kota Bharu    Kampong Tanjong Chat  d0 16:45  d0 16:49         0  direct  local    3.9
+24    Kampong Tanjong Chat         Pengkalan Chepa  d0 16:49  d0 16:56         0  direct  local    6.5
+25         Pengkalan Chepa      Kampung Wakaf Stan  d0 16:56  d0 17:09         0  direct  local   13.7
+26      Kampung Wakaf Stan                Peringat  d0 17:09  d0 17:16         0  direct  local    6.8
+27                Peringat           Kampong Kadok  d0 17:16  d0 17:23         0  direct  local    6.8
+28           Kampong Kadok                   Melor  d0 17:23  d0 17:31         0  direct  local    8.1
+29                   Melor  Kampong Cherang Hangus  d0 17:31  d0 17:44         0  direct  local   12.7
+30  Kampong Cherang Hangus            Kampong Chap  d0 17:44  d0 17:46         0  direct  local    2.4
+31            Kampong Chap  Kampong Pangkal Kalong  d0 17:46  d0 18:13         0  direct  local   27.2
+32  Kampong Pangkal Kalong             Tanah Merah  d0 18:13  d0 18:33         0  direct  local   19.4
+33             Tanah Merah             Pasir Puteh  d0 18:33  d0 19:09         0  direct  local   36.3
+34             Pasir Puteh            Cherang Ruku  d0 19:09  d0 19:24         0  direct  local   14.7
+35            Cherang Ruku        Kampong Tok Bali  d0 19:24  d0 19:27         0  direct  local    3.5
+36        Kampong Tok Bali                  Tumpat  d0 19:27  d0 20:30         0  direct  local   63.1
+37                  Tumpat              Kuala Krai  d0 20:30  d0 22:07         0  direct  local   96.4
+38              Kuala Krai             Kuala Geris  d0 22:07  d0 22:35         0  direct  local   28.7
+39             Kuala Geris                  Dabong  d0 22:35  d0 22:43         0  direct  local    8.3
+40                  Dabong     Kampung Kuala Balah  d0 22:43  d0 22:58         0  direct  local   14.6
+41     Kampung Kuala Balah    Kampung Bukit Jering  d0 22:58  d0 23:07         0  direct  local    8.9
+42    Kampung Bukit Jering              Gua Musang  d0 23:07  d1 00:33         0  direct  local   86.2
+43              Gua Musang                 Hendrop  d1 00:33  d1 01:38         0  direct  local   64.6
+44                 Hendrop                   Parit  d1 01:38  d1 07:06         0  detour   R185  328.8
+45                   Parit              Batu Gajah  d1 07:06  d1 07:25         0  direct  local   18.0
+46              Batu Gajah                   Lahat  d1 07:25  d1 07:35         0  direct  local   10.1
+47                   Lahat            Sungai Siput  d1 07:35  d1 08:06         0  direct  local   30.9
+48            Sungai Siput              Tapah Road  d1 08:06  d1 08:38         0  direct  local   32.9
+49              Tapah Road                   Bidur  d1 08:38  d1 08:52         0  direct  local   14.0
+50                   Bidur                 Sungkai  d1 08:52  d1 09:10         0  direct  local   17.5
+51                 Sungkai            Cangkat Jong  d1 09:10  d1 09:38         0  direct  local   27.9
+52            Cangkat Jong             Teluk Intan  d1 09:38  d1 09:54         0  direct  local   15.8
+53             Teluk Intan         Hutan Melintang  d1 09:54  d1 10:18         0  direct  local   24.6
+54         Hutan Melintang                Sitiawan  d1 10:18  d1 11:18         0  direct  local   59.6
+55                Sitiawan            Seri Manjung  d1 11:18  d1 11:23         0  direct  local    5.0
+56            Seri Manjung                   Lumut  d1 11:23  d1 11:30         0  direct  local    7.6
+57                   Lumut           Tanjong Malim  d1 11:30  d1 14:01         0  direct  local  151.1
+58           Tanjong Malim          Kampong Dungun  d1 14:01  d1 15:15         0  direct  local   73.2
+59          Kampong Dungun                    Ipoh  d1 15:15  d1 18:35         0  direct  local  200.5

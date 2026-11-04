@@ -1,3 +1,3 @@
 route_id,name,gateway_a,gateway_b,length_km,has_zones,source
 R4,East-West Highway (Route 4),Gerik,Kampung Jeli,126.0,TRUE,Google Maps: Gerik to Kampung Jeli via Route 4 (1 h 58 min)
-R185,Route 185 via Menora Tunnel,Changkat Jering,Gua Musang,217.0,FALSE,Google Maps: Perak end to Gua Musang (216 km + 1.1 km access)
+R185,Route 185 via Menora Tunnel,Changkat Jering,Gua Musang,217.0,TRUE,Google Maps: Perak end to Gua Musang (216 km + 1.1 km access)

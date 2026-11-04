@@ -59,7 +59,7 @@ leg,from_id,from,to_id,to,route,km,wait_min,depart,arrive,unsafe,zones_hit
 57,94,Lenggong,91,Janing,local,26.431,0,20:35,21:02,False,
 58,91,Janing,90,Gerik,local,26.933,0,21:02,21:29,False,
 59,90,Gerik,95,Temengor,local,35.677,0,21:29,22:04,False,
-60,95,Temengor,10,Kampung Kuala Layang,R4,250.937,0,22:04,02:15 (+1d),True,Z1;Z2;Z3;Z4
+60,95,Temengor,10,Kampung Kuala Layang,R4,250.937,0,22:04,02:15 (+1d),True,Z1;Z2;Z3;Z4;Z5
 61,10,Kampung Kuala Layang,13,Kampung Wias,local,37.659,0,02:15 (+1d),02:53 (+1d),False,
 62,13,Kampung Wias,7,Gua Musang,local,34.814,0,02:53 (+1d),03:28 (+1d),False,
 63,7,Gua Musang,11,Kampung Lentung,local,44.977,0,03:28 (+1d),04:13 (+1d),False,
@@ -68,7 +68,7 @@ leg,from_id,from,to_id,to,route,km,wait_min,depart,arrive,unsafe,zones_hit
 66,34,Kuala Geris,29,Dabong,local,8.257,0,04:45 (+1d),04:53 (+1d),False,
 67,29,Dabong,19,Kampung Kuala Balah,local,14.576,0,04:53 (+1d),05:08 (+1d),False,
 68,19,Kampung Kuala Balah,17,Kampung Bukit Jering,local,8.88,0,05:08 (+1d),05:17 (+1d),False,
-69,17,Kampung Bukit Jering,20,Kampung Rangka Baru,local,18.49,0,05:17 (+1d),05:35 (+1d),False,
+69,17,Kampung Bukit Jering,20,Kampung Rangka Baru,local,18.49,0,05:17 (+1d),05:35 (+1d),True,Z11
 70,20,Kampung Rangka Baru,18,Kampung Jeli,local,15.867,0,05:35 (+1d),05:51 (+1d),False,
 71,18,Kampung Jeli,15,Kampong Gunong,local,12.226,0,05:51 (+1d),06:03 (+1d),False,
 72,15,Kampong Gunong,14,Kampong Delong,local,12.226,0,06:03 (+1d),06:16 (+1d),False,
@@ -85,7 +85,7 @@ leg,from_id,from,to_id,to,route,km,wait_min,depart,arrive,unsafe,zones_hit
 83,113,Bercham,114,Chemor,local,11.932,0,15:27 (+1d),15:39 (+1d),False,
 84,114,Chemor,116,Gopeng,local,36.721,0,15:39 (+1d),16:16 (+1d),False,
 85,116,Gopeng,126,Sungai Siput,local,11.859,0,16:16 (+1d),16:28 (+1d),False,
-86,126,Sungai Siput,8,Hendrop,R4,421.495,0,16:28 (+1d),23:29 (+1d),True,Z1;Z2;Z3;Z4
+86,126,Sungai Siput,8,Hendrop,R4,421.495,0,16:28 (+1d),23:29 (+1d),True,Z1;Z2;Z3;Z4;Z5
 87,8,Hendrop,12,Kampung Pakoh,local,107.509,0,23:29 (+1d),01:17 (+2d),False,
 88,12,Kampung Pakoh,9,Kampung Jubai,local,37.293,0,01:17 (+2d),01:54 (+2d),False,
 89,9,Kampung Jubai,32,Kampung Tembeling,local,40.588,0,01:54 (+2d),02:35 (+2d),False,

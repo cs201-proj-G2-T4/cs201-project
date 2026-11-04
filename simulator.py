@@ -18,6 +18,7 @@ R185_MAIN_KM = 217.0
 CHANGKAT_JERING, GUA_MUSANG = (4.78, 100.78), (4.8833, 101.9667)
 
 towns, dist, zones, idx, ROUTE4 = [], [], [], {}, []
+ROUTE185 = []   # R185 zone points (lat, lon, km from the Perak end), used as extra knots of the detour
 n, start, GERIK, JELI = 0, 0, None, None
 
 
@@ -69,7 +70,7 @@ def load(in_dir, zones_dir, start_town="Ipoh", speed_kmh=None, corridor_total_km
         zones.append({"id": r["zone_id"], "name": r["name"], "buffer_km": float(r["buffer_km"]),
                       "active": (r["active_start"], r["active_end"]),
                       "active_min": (to_min(r["active_start"]), to_min(r["active_end"])),
-                      "points": []})
+                      "route": r.get("route") or "R4", "points": []})
     by_id = {z["id"]: z for z in zones}
     pts_name = "zone_points.csv" if os.path.exists(os.path.join(zones_dir, "zone_points.csv")) else "zones_points.csv"
     for r in sorted(read_csv(pts_name), key=lambda r: (r["zone_id"], int(r["seq"]))):
@@ -77,7 +78,8 @@ def load(in_dir, zones_dir, start_town="Ipoh", speed_kmh=None, corridor_total_km
 
     GERIK, JELI = _ll(towns[idx["Gerik"]]), _ll(towns[idx["Kampung Jeli"]])
     ROUTE4 = [(GERIK[0], GERIK[1], 0.0)]
-    ROUTE4 += sorted((p for z in zones for p in z["points"]), key=lambda p: p[2])
+    ROUTE4 += sorted((p for z in zones if z["route"] == "R4" for p in z["points"]), key=lambda p: p[2])
+    ROUTE185[:] = sorted((p for z in zones if z["route"] == "R185" for p in z["points"]), key=lambda p: p[2])
     ROUTE4 += [(JELI[0], JELI[1], CORRIDOR_TOTAL_KM)]
     return dict(towns=n, zones=len(zones), start=start)
 
@@ -108,7 +110,9 @@ def road_path(i, j, route="R4"):
         path = [(a["lat"], a["lon"], 0.0)] + [(lat, lon, start_km + km) for lat, lon, km in ROUTE4]
     else:                                              # Route 185 detour
         k1 = road_km(_ll(a), CHANGKAT_JERING)
-        path = [(a["lat"], a["lon"], 0.0), (*CHANGKAT_JERING, k1), (*GUA_MUSANG, k1 + R185_MAIN_KM)]
+        path = ([(a["lat"], a["lon"], 0.0), (*CHANGKAT_JERING, k1)]
+                + [(lat, lon, k1 + km) for lat, lon, km in ROUTE185]
+                + [(*GUA_MUSANG, k1 + R185_MAIN_KM)])
     last = path[-1]
     return path + [(b["lat"], b["lon"], last[2] + road_km(last[:2], _ll(b)))]
 

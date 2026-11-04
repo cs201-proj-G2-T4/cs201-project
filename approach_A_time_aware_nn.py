@@ -280,13 +280,23 @@ display(towns.head())
 
 Z = zones_df.sort_values("road_km").reset_index(drop=True)
 
-def corridor_knots(km0):
-    """[(lat, lon, road_km_from_Gerik)] for Gerik, Z1..Z4, Jeli."""
-    k = [(GATE["GERIK"][0], GATE["GERIK"][1], 0.0)]
+def route_ids(route):
+    """zone ids on a given road ('R4', 'R185', 'LOCAL'). zones.csv without a route column = all on R4."""
+    col = zones_df["route"].fillna("R4") if "route" in zones_df else pd.Series("R4", index=zones_df.index)
+    return set(zones_df.zone_id[col == route])
+
+def route_knots(route, km0=0.0):
+    """[(lat, lon, road_km)] of the zone points on `route`, sorted by road km (used as extra path knots)."""
+    ids = route_ids(route)
     if zone_pts is not None:
-        k += [(r.lat, r.lon, km0 + r.road_km) for r in zone_pts.sort_values("road_km").itertuples()]
-    else:
-        k += [(r.center_lat, r.center_lon, km0 + r.road_km) for r in Z.itertuples()]
+        pts = zone_pts[zone_pts.zone_id.isin(ids)].sort_values("road_km")
+        return [(r.lat, r.lon, km0 + r.road_km) for r in pts.itertuples()]
+    return [(r.center_lat, r.center_lon, km0 + r.road_km) for r in Z[Z.zone_id.isin(ids)].itertuples()]
+
+def corridor_knots(km0):
+    """[(lat, lon, road_km_from_Gerik)] for Gerik, the Route 4 zones, Jeli."""
+    k = [(GATE["GERIK"][0], GATE["GERIK"][1], 0.0)]
+    k += route_knots("R4", km0)
     k += [(GATE["JELI"][0], GATE["JELI"][1], CFG["CORRIDOR_TOTAL_KM"])]
     return k
 
@@ -306,6 +316,8 @@ for km0 in (0.0, 12.5):
 def is_safe(hits, D, zidx, speed):
     return all(active_conflict(D + a/speed*60, D + b/speed*60, zidx.a_s[z], zidx.a_e[z]) is None for z, a, b in hits)
 
+SAFETY_MIN = 1.0   # minutes of slack so a second simulator with slightly different km/geometry agrees
+
 def earliest_safe(hits, D, zidx, speed, limit=20):
     """Earliest departure >= D at which every zone hit falls outside its active window (waiting only at the town)."""
     for _ in range(limit):
@@ -313,7 +325,7 @@ def earliest_safe(hits, D, zidx, speed, limit=20):
         for z, a, b in hits:
             we = active_conflict(D + a/speed*60, D + b/speed*60, zidx.a_s[z], zidx.a_e[z])
             if we is not None:
-                cand = we - a/speed*60          # enter the zone exactly when its window closes
+                cand = we - a/speed*60 + SAFETY_MIN   # enter the zone just after its window closes
                 nxt = cand if nxt is None else max(nxt, cand)
         if nxt is None: return D
         D = nxt
@@ -328,9 +340,12 @@ def r4_path_east(p, k):
     return _fix(lats, lons, cum)
 
 def r185_path_east(p, k):
-    lats = [p[0], GATE["CJ"][0], GATE["GM"][0], k[0]]; lons = [p[1], GATE["CJ"][1], GATE["GM"][1], k[1]]
-    c1 = est(p, GATE["CJ"]); c2 = c1 + CFG["R185_MAIN_KM"]; c3 = c2 + est(GATE["GM"], k)
-    return _fix(lats, lons, [0.0, c1, c2, c3])
+    """Perak town p -> Changkat Jering -> Route 185 zones -> Gua Musang -> Kelantan town k."""
+    ks = route_knots("R185"); c1 = est(p, GATE["CJ"]); c2 = c1 + CFG["R185_MAIN_KM"]
+    lats = [p[0], GATE["CJ"][0]] + [q[0] for q in ks] + [GATE["GM"][0], k[0]]
+    lons = [p[1], GATE["CJ"][1]] + [q[1] for q in ks] + [GATE["GM"][1], k[1]]
+    cum = [0.0, c1] + [c1 + q[2] for q in ks] + [c2, c2 + est(GATE["GM"], k)]
+    return _fix(lats, lons, cum)
 
 def _fix(lats, lons, cum):
     cum = np.array(cum, float) + np.arange(len(cum))*1e-9     # strictly increasing for np.interp

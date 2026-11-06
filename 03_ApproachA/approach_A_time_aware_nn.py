@@ -1,6 +1,6 @@
 """Approach A: time-aware Nearest Neighbour with a spatial grid index (CS201 G2T4).
 
-Usage:  python approach_A_time_aware_nn.py "01_data_prep" "data/zones(augmented data)"
+Usage (from the repo root):  python 03_ApproachA/approach_A_time_aware_nn.py "01_data_prep" "data/zones(augmented data)"
 It stops with an error if it cannot find the town data.
 Each run saves CSVs, PNGs and run_log.txt in its own folder: ./outputs/run_<date>_<time>/
 """
@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys, datetime
-OUT_DIR = os.path.join("outputs", "run_" + datetime.datetime.now().strftime("%Y-%m-%d_%H%M"))   # every run gets its own folder
+OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outputs", "run_" + datetime.datetime.now().strftime("%Y-%m-%d_%H%M"))   # every run gets its own folder
 os.makedirs(OUT_DIR, exist_ok=True)
 
 class _Tee:                                   # everything printed also goes to run_log.txt
@@ -648,7 +648,7 @@ print("hours_unsafe = number of the 24 start hours in which the tour contains at
 # The team baseline (classic NN, Route 4 only) and every Approach A tour are driven through the SAME simulate()
 # function, which re-checks every leg from scratch. Needs the 01_data_prep folder as the first argument.
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))   # repo root, where simulator.py is
 team = None
 try:
     if PREP_DIR is None: raise RuntimeError("pass the 01_data_prep folder as the first argument to enable this check")

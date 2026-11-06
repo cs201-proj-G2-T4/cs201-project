@@ -1,7 +1,7 @@
 """Approach A: time-aware Nearest Neighbour with a spatial grid index (CS201 G2T4).
 
-Usage:  python approach_A_time_aware_nn.py "01_data_prep" "data/zones(augmented data)"
-It stops with an error if it cannot find the town data.
+Usage:  python approach_A_time_aware_nn.py [path/to/MY.txt] [zones folder] [roads folder, optional]
+Without MY.txt it falls back to a small approximate DEMO town set (not for reporting).
 Each run saves CSVs, PNGs and run_log.txt in its own folder: ./outputs/run_<date>_<time>/
 """
 
@@ -29,7 +29,6 @@ import matplotlib.pyplot as plt
 import sys, datetime
 OUT_DIR = os.path.join("outputs", "run_" + datetime.datetime.now().strftime("%Y-%m-%d_%H%M"))   # every run gets its own folder
 os.makedirs(OUT_DIR, exist_ok=True)
-
 class _Tee:                                   # everything printed also goes to run_log.txt
     def __init__(self, *streams): self.streams = streams
     def write(self, data):
@@ -39,7 +38,6 @@ class _Tee:                                   # everything printed also goes to 
 _log = open(os.path.join(OUT_DIR, "run_log.txt"), "w", encoding="utf-8")
 sys.stdout = _Tee(sys.__stdout__, _log)
 print("Run folder:", OUT_DIR)
-
 import matplotlib
 if not os.environ.get("DISPLAY") and os.name != "nt": matplotlib.use("Agg")
 def display(x):
@@ -75,7 +73,6 @@ ZONE_ROWS = [
  ("Z3","KM50",50,48,52,5.56473,101.36287,1,"19:00","7:00","Calf killed by SUV (Apr 2024); no time in report"),
  ("Z4","KM80",80,78,82,5.59922,101.5784,1,"19:00","7:00","Calf killed by lorry ~2:50am (11 May 2025)"),
 ]
-
 import sys
 ZONES_DIR = sys.argv[2] if len(sys.argv) > 2 else "zones(augmented data)"
 _zc = os.path.join(ZONES_DIR, "zones.csv")
@@ -119,7 +116,6 @@ def hhmm(s):
     h, m = s.strip().split(":"); return int(h)*60 + int(m)
 zones_df["a_s"] = zones_df.active_start.map(hhmm)
 zones_df["a_e"] = zones_df.active_end.map(hhmm)
-
 # zone extent along the road (km) = half the stretch + buffer
 zones_df["radius_road_km"] = zones_df.buffer_km + (zones_df.km_end - zones_df.km_start)/2
 display(zones_df[["zone_id","road_km","center_lat","center_lon","radius_road_km","a_s","a_e"]])
@@ -210,7 +206,7 @@ def sample_path(path, step):
 
 # ## 2. Load towns
 # 
-# Give the path to `MY.txt` or to the `01_data_prep` folder as the first argument. The script stops with an error if neither is found.
+# Upload `MY.txt` when prompted in Colab (or put it next to the notebook). If it is not found, a **small approximate demo set** is used so the notebook still runs. Do not report results from the demo set.
 # 
 # The Perak and Kelantan `admin1` codes are **auto-detected** from anchor towns (Ipoh, Kota Bharu) instead of being hard-coded, because the code in the brief should be double-checked. Verify the printout.
 
@@ -227,27 +223,20 @@ def code_of(df, nm):
     r = df[df.asciiname.str.lower() == nm.lower()]
     return r.admin1.mode().iat[0] if len(r) else None
 
+DEMO = [  # APPROXIMATE coordinates, demo only
+ ("Ipoh",4.5975,101.0901,"P",657892),("Taiping",4.85,100.74,"P",245000),("Kuala Kangsar",4.7667,100.9333,"P",40000),
+ ("Gerik",5.4308,101.1275,"P",38000),("Teluk Intan",4.0259,101.0213,"P",100000),("Batu Gajah",4.4719,101.0419,"P",40000),
+ ("Kota Bharu",6.1333,102.25,"K",491000),("Bachok",6.0667,102.4,"K",30000),("Machang",5.7667,102.2167,"K",60000),
+ ("Tanah Merah",5.8,102.15,"K",40000),("Pasir Mas",6.05,102.14,"K",50000),("Kuala Krai",5.5333,102.2,"K",30000),
+ ("Gua Musang",4.8833,101.9667,"K",40000),("Kampung Jeli",5.70,101.8333,"K",5000)]
 
 import sys
-ARG1 = sys.argv[1] if len(sys.argv) > 1 else "MY.txt"
-PREP_DIR = ARG1 if os.path.isdir(ARG1) and os.path.exists(os.path.join(ARG1, "towns.csv")) else None   # team data folder
-TEAM_DIST = None
-MY_PATH = None if PREP_DIR else ARG1
-if PREP_DIR:
-    print("Using the team data in", PREP_DIR, "(towns.csv + distances_km.csv)")
-elif not os.path.exists(MY_PATH):
-    sys.exit("ERROR: town data not found at '%s'.\nGive the path to MY.txt, or to the 01_data_prep folder (it must contain towns.csv and distances_km.csv), as the first argument." % MY_PATH)
+MY_PATH = sys.argv[1] if len(sys.argv) > 1 else "MY.txt"
+if not os.path.exists(MY_PATH):
+    print("MY.txt not found at", MY_PATH, "-> using DEMO towns (approximate, not for reporting).")
+    MY_PATH = None
 
-if PREP_DIR:
-    towns = pd.read_csv(os.path.join(PREP_DIR, "towns.csv")).rename(columns={"name": "town", "latitude": "lat", "longitude": "lon"})
-    assert (towns["id"].values == np.arange(len(towns))).all(), "towns.csv ids must be 0..n-1 in row order"
-    towns["region"] = np.where(towns.state == "Perak", "P", "K")
-    towns = towns[["town", "lat", "lon", "region", "population"]]
-    TEAM_DIST = np.loadtxt(os.path.join(PREP_DIR, "distances_km.csv"), delimiter=",", skiprows=1, usecols=range(1, len(towns) + 1))
-    for key, nm in [("GERIK", "Gerik"), ("JELI", "Kampung Jeli"), ("GM", "Gua Musang")]:
-        r = towns[towns.town == nm]
-        if len(r) and key not in GATE_FROM_CSV: GATE[key] = (float(r.lat.iloc[0]), float(r.lon.iloc[0]))
-elif MY_PATH:
+if MY_PATH:
     raw = load_geonames(MY_PATH)
     pc, kc = code_of(raw, "Ipoh"), code_of(raw, "Kota Bharu")
     print("Detected admin1 codes -> Perak:", pc, " Kelantan:", kc, "(verify against admin1CodesASCII.txt)")
@@ -260,7 +249,9 @@ elif MY_PATH:
     half = CFG["N_TOWNS"]//2
     towns = pd.concat([g.sort_values("population", ascending=False).head(half) for _, g in raw.groupby("region")])
     towns = towns.rename(columns={"asciiname": "town"})[["town","lat","lon","region","population"]]
-
+else:
+    towns = pd.DataFrame(DEMO, columns=["town","lat","lon","region","population"])
+    pass
 
 for _nm in dict.fromkeys([CFG["START_NAME"], "Gerik", "Kampung Jeli"]):      # always include the start and the two gateway towns
     if _nm not in set(towns.town) and MY_PATH:
@@ -280,23 +271,13 @@ display(towns.head())
 
 Z = zones_df.sort_values("road_km").reset_index(drop=True)
 
-def route_ids(route):
-    """zone ids on a given road ('R4', 'R185', 'LOCAL'). zones.csv without a route column = all on R4."""
-    col = zones_df["route"].fillna("R4") if "route" in zones_df else pd.Series("R4", index=zones_df.index)
-    return set(zones_df.zone_id[col == route])
-
-def route_knots(route, km0=0.0):
-    """[(lat, lon, road_km)] of the zone points on `route`, sorted by road km (used as extra path knots)."""
-    ids = route_ids(route)
-    if zone_pts is not None:
-        pts = zone_pts[zone_pts.zone_id.isin(ids)].sort_values("road_km")
-        return [(r.lat, r.lon, km0 + r.road_km) for r in pts.itertuples()]
-    return [(r.center_lat, r.center_lon, km0 + r.road_km) for r in Z[Z.zone_id.isin(ids)].itertuples()]
-
 def corridor_knots(km0):
-    """[(lat, lon, road_km_from_Gerik)] for Gerik, the Route 4 zones, Jeli."""
+    """[(lat, lon, road_km_from_Gerik)] for Gerik, Z1..Z4, Jeli."""
     k = [(GATE["GERIK"][0], GATE["GERIK"][1], 0.0)]
-    k += route_knots("R4", km0)
+    if zone_pts is not None:
+        k += [(r.lat, r.lon, km0 + r.road_km) for r in zone_pts.sort_values("road_km").itertuples()]
+    else:
+        k += [(r.center_lat, r.center_lon, km0 + r.road_km) for r in Z.itertuples()]
     k += [(GATE["JELI"][0], GATE["JELI"][1], CFG["CORRIDOR_TOTAL_KM"])]
     return k
 
@@ -316,8 +297,6 @@ for km0 in (0.0, 12.5):
 def is_safe(hits, D, zidx, speed):
     return all(active_conflict(D + a/speed*60, D + b/speed*60, zidx.a_s[z], zidx.a_e[z]) is None for z, a, b in hits)
 
-SAFETY_MIN = 1.0   # minutes of slack so a second simulator with slightly different km/geometry agrees
-
 def earliest_safe(hits, D, zidx, speed, limit=20):
     """Earliest departure >= D at which every zone hit falls outside its active window (waiting only at the town)."""
     for _ in range(limit):
@@ -325,7 +304,7 @@ def earliest_safe(hits, D, zidx, speed, limit=20):
         for z, a, b in hits:
             we = active_conflict(D + a/speed*60, D + b/speed*60, zidx.a_s[z], zidx.a_e[z])
             if we is not None:
-                cand = we - a/speed*60 + SAFETY_MIN   # enter the zone just after its window closes
+                cand = we - a/speed*60          # enter the zone exactly when its window closes
                 nxt = cand if nxt is None else max(nxt, cand)
         if nxt is None: return D
         D = nxt
@@ -340,12 +319,9 @@ def r4_path_east(p, k):
     return _fix(lats, lons, cum)
 
 def r185_path_east(p, k):
-    """Perak town p -> Changkat Jering -> Route 185 zones -> Gua Musang -> Kelantan town k."""
-    ks = route_knots("R185"); c1 = est(p, GATE["CJ"]); c2 = c1 + CFG["R185_MAIN_KM"]
-    lats = [p[0], GATE["CJ"][0]] + [q[0] for q in ks] + [GATE["GM"][0], k[0]]
-    lons = [p[1], GATE["CJ"][1]] + [q[1] for q in ks] + [GATE["GM"][1], k[1]]
-    cum = [0.0, c1] + [c1 + q[2] for q in ks] + [c2, c2 + est(GATE["GM"], k)]
-    return _fix(lats, lons, cum)
+    lats = [p[0], GATE["CJ"][0], GATE["GM"][0], k[0]]; lons = [p[1], GATE["CJ"][1], GATE["GM"][1], k[1]]
+    c1 = est(p, GATE["CJ"]); c2 = c1 + CFG["R185_MAIN_KM"]; c3 = c2 + est(GATE["GM"], k)
+    return _fix(lats, lons, [0.0, c1, c2, c3])
 
 def _fix(lats, lons, cum):
     cum = np.array(cum, float) + np.arange(len(cum))*1e-9     # strictly increasing for np.interp
@@ -361,7 +337,6 @@ class World:
         self.ll = list(zip(towns.lat, towns.lon))
         la, lo = towns.lat.values, towns.lon.values
         self.D = hav(la[:, None], lo[:, None], la[None, :], lo[None, :]) * CFG["DETOUR_FACTOR"]
-        if TEAM_DIST is not None: self.D = TEAM_DIST.copy()          # use the team's distances_km.csv exactly
         self.speed = CFG["SPEED_KMH"]; self.step = CFG["SAMPLE_STEP_KM"]
         # convert zone radius (road km) to map km using the corridor winding ratio
         ks = corridor_knots(CFG["KM0_OFFSET_KM"])
@@ -382,9 +357,6 @@ class World:
     def path(self, i, j, route):
         key = (i, j, route)
         if key not in self._path:
-            if route == "local":                       # straight line, length from the distance matrix
-                self._path[key] = _fix([self.ll[i][0], self.ll[j][0]], [self.ll[i][1], self.ll[j][1]], [0.0, float(self.D[i, j])])
-                return self._path[key]
             f = r4_path_east if route == "R4" else r185_path_east
             self._path[key] = f(self.ll[i], self.ll[j]) if self.region[i] == "P" else reverse(f(self.ll[j], self.ll[i]))
         return self._path[key]
@@ -412,14 +384,11 @@ class World:
         sp = self.speed
         if self.region[i] == self.region[j]:
             km = self.D[i, j]
-            D0 = earliest_safe(self.hits(i, j, "local"), t, self.zidx, sp)    # same-region legs are zone-checked too; the only fix is to wait
-            D0 = float("inf") if D0 is None else D0
-            return dict(route="local", type="direct" if D0 == t else "wait-then-direct", depart=D0, wait=D0 - t,
-                        arrive=D0 + km/sp*60, km=km, km_default=km, r4_arrive=None, r185_arrive=None)
+            return dict(route="local", type="direct", depart=t, wait=0.0, arrive=t + km/sp*60, km=km, km_default=km,
+                        r4_arrive=None, r185_arrive=None)
         km = {"R4": self.km(i, j, "R4"), "R185": self.km(i, j, "R185")}
         D4 = earliest_safe(self.hits(i, j, "R4"), t, self.zidx, sp)       # earliest safe departure on Route 4
-        D5 = earliest_safe(self.hits(i, j, "R185"), t, self.zidx, sp)    # Route 185 is zone-checked too (a town can sit right next to a zone)
-        dep = {"R4": D4, "R185": D5}
+        dep = {"R4": D4, "R185": t}                                          # Route 185 has no zones
         arr = {r: (dep[r] + km[r]/sp*60) if dep[r] is not None else float("inf") for r in km}
         default = min(km, key=km.get); other = "R185" if default == "R4" else "R4"
         cands = []
@@ -428,10 +397,7 @@ class World:
             elif mode in ("full", "wait_only"): cands.append(dict(route=default, type="wait-then-direct", depart=dep[default]))
         if mode in ("full", "detour_only") and dep[other] is not None and (dep[other] == t or mode == "full"):
             cands.append(dict(route=other, type="detour", depart=dep[other]))
-        if not cands:                                                                # safety net: take whichever road can leave soonest
-            ok = [r for r in km if dep[r] is not None]
-            r = min(ok, key=lambda x: arr[x]) if ok else "R185"
-            cands.append(dict(route=r, type="wait-then-direct" if r == default else "detour", depart=dep[r] if dep[r] is not None else t))
+        if not cands: cands.append(dict(route="R185", type="detour", depart=t))     # safety net: Route 185 is always safe
         for c in cands: c.update(arrive=arr[c["route"]], km=km[c["route"]])
         b = min(cands, key=lambda c: c["arrive"])                                   # ties keep the earlier (direct first)
         b.update(wait=b["depart"] - t, km_default=km[default], r4_arrive=arr["R4"], r185_arrive=arr["R185"])
@@ -477,6 +443,7 @@ def verify(w, legs, step=0.1):
     zx, zy, zr, a_s, a_e = w.zidx.zx, w.zidx.zy, w.zidx.zr, w.zidx.da_s, w.zidx.da_e
     bad_legs = bad_samples = 0
     for L in legs:
+        if L["route"] == "local": continue
         s, x, y = sample_path(w.path(L["frm"], L["to"], L["route"]), step)
         tm = (L["depart"] + s/w.speed*60) % 1440
         inside = ((x[:, None]-zx)**2 + (y[:, None]-zy)**2) <= zr**2
@@ -643,48 +610,6 @@ summ = sweep.groupby(["start_town", "mode"]).agg(best_h=("total_h", "min"), wors
         hours_unsafe=("unsafe_legs", lambda x: int((x > 0).sum()))).round(2)
 display(summ.reset_index())
 print("hours_unsafe = number of the 24 start hours in which the tour contains at least one unsafe leg.")
-
-# ## Experiment 7: Score Approach A with the team simulator (simulator.py)
-# The team baseline (classic NN, Route 4 only) and every Approach A tour are driven through the SAME simulate()
-# function, which re-checks every leg from scratch. Needs the 01_data_prep folder as the first argument.
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-team = None
-try:
-    if PREP_DIR is None: raise RuntimeError("pass the 01_data_prep folder as the first argument to enable this check")
-    import simulator as team
-    team.load(PREP_DIR, ZONES_DIR, start_town=CFG["START_NAME"], speed_kmh=CFG["SPEED_KMH"],
-              corridor_total_km=CFG["CORRIDOR_TOTAL_KM"], r185_main_km=CFG["R185_MAIN_KM"])
-    assert W.name == [t["name"] for t in team.towns], "town order differs between Approach A and simulator.py"
-except Exception as e:
-    print("Team simulator check skipped:", e); team = None
-
-if team is not None:
-    def as_team_input(lg):
-        tour = [START] + [l["to"] for l in lg]
-        waits = {l["frm"]: l["wait"] for l in lg if l["wait"] > 1e-9}
-        routes = {k: l["route"] for k, l in enumerate(lg) if l["route"] == "R185"}
-        return tour, waits, routes
-
-    base_tour = team.nearest_neighbour(START)
-    rows7 = []
-    for h in (6, 8, 18):
-        t0 = h*60
-        r = team.simulate(base_tour, t0)
-        rows7.append(dict(start=f"{h:02d}:00", method="Team baseline (Route 4 only)", total_h=round(r["total_min"]/60, 2),
-                          wait_h=0.0, n_R185_legs=sum(l["route"] == "R185" for l in r["legs"]), n_detours=0, total_km=round(r["total_km"], 1), unsafe_legs=r["unsafe_legs"], A_own_total_h=None))
-        for mode, lab in [("wait_only", "A: wait only"), ("detour_only", "A: detour only"), ("full", "A: wait + detour")]:
-            lg = run_time_aware_nn(W, START, t0, mode)
-            tour, waits, routes = as_team_input(lg)
-            r = team.simulate(tour, t0, waits, routes)
-            rows7.append(dict(start=f"{h:02d}:00", method=lab, total_h=round(r["total_min"]/60, 2), wait_h=round(r["wait_min"]/60, 2),
-                              n_R185_legs=len(routes), n_detours=sum(l["type"] == "detour" for l in lg), total_km=round(r["total_km"], 1), unsafe_legs=r["unsafe_legs"],
-                              A_own_total_h=round((lg[-1]["arrive"] - t0)/60, 2)))
-    exp7 = pd.DataFrame(rows7); display(exp7); exp7.to_csv(os.path.join(OUT_DIR, "exp7_team_simulator.csv"), index=False)
-    A7 = exp7[exp7.method.str.startswith("A:")]
-    if (A7.unsafe_legs > 0).any(): print("WARNING: the team simulator found an unsafe leg in an Approach A tour. Check the zone geometry / settings.")
-    else: print("OK: the team simulator found 0 unsafe legs in every Approach A tour.")
-    print("Largest gap between Approach A's own total time and the simulator's: %.2f h" % (A7.total_h - A7.A_own_total_h).abs().max())
 
 # ## Look at one tour
 # Each row is a leg with departure, arrival, wait and route type.

@@ -18,7 +18,7 @@ Each run saves CSVs, PNGs and run_log.txt in its own folder: ./outputs/run_<date
 # 
 # Modelling assumptions (all editable in the config cell)
 # - Same-region legs (Perak to Perak, Kelantan to Kelantan) are straight-line x 1.3 and never touch a zone.
-# - Cross-region legs use **Route 4** (through Z1 to Z4) or the **Route 185 detour** via Gua Musang (no zones). Gateways: Gerik (Perak side), Jeli (Kelantan side).
+# - Cross-region legs use **Route 4** (through the Route 4 zones) or the **Route 185 detour** via Gua Musang (which has its own zones, Z6 and Z7). Gateways: Gerik (Perak side), Jeli (Kelantan side).
 # - One speed for everything, zone hours repeat daily, waiting only at towns.
 
 
@@ -50,13 +50,13 @@ CFG = dict(
     DETOUR_FACTOR  = 1.3,    # haversine -> road km (off the corridor)
     SAMPLE_STEP_KM = 0.5,    # sampling spacing along a leg
     GRID_CELL_KM   = 5.0,
-    N_TOWNS        = 60,     # total towns, split between Perak and Kelantan
+    N_TOWNS        = 60,     # only used if run on MY.txt directly; with 01_data_prep all 161 towns are used
     START_NAME     = "Ipoh",
     START_HOUR     = 8.0,
     # --- Route 4 corridor (Gerik -> Jeli), measured on Google Maps ---
     CORRIDOR_TOTAL_KM = 126.0,
     KM0_OFFSET_KM     = 0.0,   # distance from Gerik town to zone-table km 0. See the sanity-check cell.
-    # --- Route 185 detour (no zones), measured: Perak end -> Gua Musang ---
+    # --- Route 185 detour (zones Z6, Z7 from zones.csv), measured: Perak end -> Gua Musang ---
     R185_MAIN_KM   = 217.0,
 )
 
@@ -332,7 +332,7 @@ def earliest_safe(hits, D, zidx, speed, limit=20):
     return None
 
 def r4_path_east(p, k):
-    """Perak town p -> Gerik -> Z1..Z4 -> Jeli -> Kelantan town k.  p, k are (lat, lon)."""
+    """Perak town p -> Gerik -> Route 4 zones -> Jeli -> Kelantan town k.  p, k are (lat, lon)."""
     ks = corridor_knots(CFG["KM0_OFFSET_KM"]); base = est(p, GATE["GERIK"])
     lats = [p[0]] + [q[0] for q in ks] + [k[0]]
     lons = [p[1]] + [q[1] for q in ks] + [k[1]]
@@ -559,7 +559,7 @@ print(f"Default road: {'Route 4' if _k4 <= _k5 else 'Route 185'}. The other road
 
 
 # ## Experiment 4: Grid vs brute force (justifies the data structure)
-# Your real dataset only has 4 zones, so the grid will show little benefit there. We therefore also test **synthetic extra zones** (random, same hours). Both methods use the same samples, and the check below confirms they return identical hits.
+# The real dataset only has 12 zones (108 zone points), so the grid will show little benefit there. We therefore also test **synthetic extra zones** (random, same hours). Both methods use the same samples, and the check below confirms they return identical hits.
 
 
 def synth(m, seed=0):
@@ -575,15 +575,15 @@ samples = [sample_path(W.path(i, j, "R4"), CFG["SAMPLE_STEP_KM"]) for i, j in pa
 pad = CFG["SAMPLE_STEP_KM"]
 
 rows = []
-for m in (4, 50, 500, 5000):
-    zx, zy, zr, dz, a_s, a_e = synth(m) if m > 4 else (W.zidx.zx, W.zidx.zy, W.zidx.zr, W.zidx.dzone, W.zidx.a_s, W.zidx.a_e)
+for m in ("real", 50, 500, 5000):
+    zx, zy, zr, dz, a_s, a_e = synth(m) if m != "real" else (W.zidx.zx, W.zidx.zy, W.zidx.zr, W.zidx.dzone, W.zidx.a_s, W.zidx.a_e)
     tracemalloc.start(); t = time.perf_counter()
     idx = ZoneIndex(zx, zy, zr, dz, a_s, a_e, CFG["GRID_CELL_KM"])
     build = time.perf_counter()-t; peak = tracemalloc.get_traced_memory()[1]; tracemalloc.stop()
     t = time.perf_counter(); g = [idx.hits_grid(s, x, y, pad) for s, x, y in samples]; tg = time.perf_counter()-t
     t = time.perf_counter(); b = [idx.hits_brute(s, x, y, pad) for s, x, y in samples]; tb = time.perf_counter()-t
     same = all([(z, round(a, 6), round(c, 6)) for z, a, c in u] == [(z, round(a, 6), round(c, 6)) for z, a, c in v] for u, v in zip(g, b))
-    rows.append(dict(zones=m, discs=len(zx), grid_ms=round(tg*1000, 1), brute_ms=round(tb*1000, 1), speedup=round(tb/tg, 2),
+    rows.append(dict(zones=f"{len(set(dz))} (real)" if m == "real" else m, discs=len(zx), grid_ms=round(tg*1000, 1), brute_ms=round(tb*1000, 1), speedup=round(tb/tg, 2),
                      grid_build_ms=round(build*1000, 1), grid_peak_KB=round(peak/1024, 1), identical_results=same))
 scal = pd.DataFrame(rows); display(scal); scal.to_csv(os.path.join(OUT_DIR, "exp4_grid_scaling.csv"), index=False)
 

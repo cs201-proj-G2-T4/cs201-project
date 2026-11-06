@@ -39,8 +39,37 @@ import math, time, os, sys, heapq, tracemalloc, itertools
 from typing import NamedTuple, TypedDict
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")                  # save charts to files instead of opening windows
 import matplotlib.pyplot as plt
-import copy
+import copy, datetime
+
+# every run gets its own folder: 04_ApproachB/outputs/run_<date>_<time>/ (CSVs, PNGs, run_log.txt)
+OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outputs",
+                       "run_" + datetime.datetime.now().strftime("%Y-%m-%d_%H%M"))
+os.makedirs(OUT_DIR, exist_ok=True)
+
+class _Tee:
+    """Everything printed also goes to run_log.txt"""
+    def __init__(self, *streams): self.streams = streams
+    def write(self, data):
+        for st in self.streams: st.write(data)
+    def flush(self):
+        for st in self.streams: st.flush()
+_log = open(os.path.join(OUT_DIR, "run_log.txt"), "w", encoding="utf-8")
+sys.stdout = _Tee(sys.__stdout__, _log)
+print("Run folder:", OUT_DIR)
+
+def save_fig(name):
+    """Save the current chart to OUT_DIR and close it."""
+    plt.savefig(os.path.join(OUT_DIR, name), dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"(saved {name})")
+
+def save_csv(df, name):
+    """Save a results table to OUT_DIR."""
+    df.to_csv(os.path.join(OUT_DIR, name), index=False)
+    print(f"(saved {name})")
 
 def display(x):
     print(x.to_string() if hasattr(x, "to_string") else x)
@@ -481,6 +510,7 @@ print(f"B is faster than the baseline in {(exp1.B_h < exp1.baseline_h - 0.01).su
 print(f"Average: baseline {exp1.baseline_h.mean():.2f} h, B {exp1.B_h.mean():.2f} h.")
 print()
 display(exp1)
+save_csv(exp1, "exp1_baseline_vs_B.csv")
 print("\n")
 
 plt.figure(figsize=(5.5, 5))
@@ -496,7 +526,7 @@ plt.legend()
 plt.grid(alpha=.3)
 plt.title(f"{len(exp1)} tours, scored by simulator.py")
 
-plt.show()
+save_fig("exp1_baseline_vs_B.png")
 
 # ---- Experiment 2: show diff arrival time for each departure time ----
 EXP2_TRIP = ("Ipoh", "Kota Bharu")
@@ -530,6 +560,7 @@ def departure_sweep(graph, frm, to):
 
 frm, to = net.index[EXP2_TRIP[0]], net.index[EXP2_TRIP[1]]
 exp2 = departure_sweep(graph, frm, to)
+save_csv(exp2, "exp2_departure_sweep.csv")
 
 print("\n---- Experiment 2: show diff arrival time for each departure time ----")
 display(exp2.groupby("choice").agg(departures=("depart_h", "size"), avg_hours=("hours", "mean")).round(2))
@@ -548,7 +579,7 @@ plt.xticks(range(0, 25, 2))
 plt.title(f"{EXP2_TRIP[0]} -> {EXP2_TRIP[1]}: B's choice by departure time")
 plt.legend()
 plt.grid(alpha=.3)
-plt.show()
+save_fig("exp2_departure_sweep.png")
 
 # ---- Experiment 2b: what if the detour road had no zones? ----
 DETOUR_ROUTE = "R185"
@@ -556,6 +587,7 @@ detour_zones = {z["id"] for z in net.zones_on_route[DETOUR_ROUTE]}       # {"Z6"
 
 no_detour_zone_net = edit_spans(net, lambda s: None if s.zone_id in detour_zones else s)
 exp2_detour = departure_sweep(TimeExpandedGraph(no_detour_zone_net), frm, to)
+save_csv(exp2_detour, "exp2b_no_detour_zones.csv")
 
 print(f"\n---- Experiment 2b: {EXP2_TRIP[0]} -> {EXP2_TRIP[1]} without {sorted(detour_zones)} ----")
 display(exp2_detour.groupby("choice").agg(departures=("depart_h", "size"), avg_hours=("hours", "mean")).round(2))
@@ -567,7 +599,7 @@ for label, mark in zip(exp2_detour.choice.unique(), itertools.cycle("os^Dv")):
     plt.scatter(d.depart_h, d.hours, s=14, marker=mark, label=f"no {DETOUR_ROUTE} zones: {label}")
 shade_active_hours(zones)
 plt.xlabel(f"departure hour from {EXP2_TRIP[0]}"); plt.ylabel(f"hours until {EXP2_TRIP[1]}"); plt.xticks(range(0, 25, 2))
-plt.title(f"With vs without zones on {DETOUR_ROUTE}"); plt.legend(); plt.grid(alpha=.3); plt.show()
+plt.title(f"With vs without zones on {DETOUR_ROUTE}"); plt.legend(); plt.grid(alpha=.3); save_fig("exp2b_no_detour_zones.png")
 
 # ---- Experiment 3a: slot size -> accuracy vs speed ----
 # Smaller slots round travel times less (closer to the exact clock) but give more nodes and edges to search.
@@ -591,6 +623,7 @@ for slot in EXP3_SLOT_SIZES:
 print("\n---- Experiment 3a: slot size ----")
 exp3a = pd.DataFrame(rows)
 display(exp3a)
+save_csv(exp3a, "exp3a_slot_size.csv")
 print("\n")
 
 fig, ax = plt.subplots(1, 2, figsize=(10, 3.8))
@@ -609,7 +642,7 @@ for a in ax:
     a.grid(alpha=.3)
 
 plt.tight_layout()
-plt.show()
+save_fig("exp3a_slot_size.png")
 
 
 # ---- Experiment 3b: storage -> compact vs full adjacency list ----
@@ -640,6 +673,7 @@ for slot in EXP3_SLOT_SIZES:
 print("\n---- Experiment 3b: compact vs full adjacency list ----")
 exp3b = pd.DataFrame(rows)
 display(exp3b)
+save_csv(exp3b, "exp3b_memory.csv")
 print("\n")
 
 plt.figure(figsize=(5.5, 3.8))
@@ -653,7 +687,7 @@ plt.ylabel("peak memory (MB)")
 plt.title("Memory: same graph, two storages")
 plt.legend()
 plt.grid(alpha=.3)
-plt.show()
+save_fig("exp3b_memory.png")
 
 # ---- Experiment 4: scaling with the number of places ----
 # Build the Network on n towns.
@@ -707,6 +741,7 @@ exp4_med = exp4.groupby("places").median(numeric_only=True).reset_index()   # me
 
 print("\n----- Experiment 4: scaling with the number of places ----")
 display(exp4)
+save_csv(exp4, "exp4_scaling.csv")
 display(exp4_med[["places", "nodes", "edges", "timed_legs", "nodes_settled", "tour_s"]])
 
 S = graph.num_daily_slots
@@ -733,7 +768,7 @@ for a in ax:
 ax[0].legend()
 
 plt.tight_layout()
-plt.show()
+save_fig("exp4_scaling.png")
 print("\n")
 
 # ---- Experiment 5: how much of B is plain Nearest Neighbour ----
@@ -763,7 +798,9 @@ for h in SIM_START_HOURS:
                      B_no_zones_h=free["total_h"], B_no_zones_unsafe=free["unsafe_legs"],
                      B_h=safe["total_h"], B_unsafe=safe["unsafe_legs"]))
 print("\n----- Experiment 6: if no zones, compared to simulator ----")
-display(pd.DataFrame(rows))
+exp6 = pd.DataFrame(rows)
+display(exp6)
+save_csv(exp6, "exp6_no_zones.csv")
 
 # ---- Experiment 7: change the danger hours ----
 WINDOWS = [(None, None, "real (mixed)"), (19, 7, "all 19-07"), (7, 19, "all 07-19 (day)")]
@@ -778,5 +815,9 @@ for frm, to, label in WINDOWS:
         rows.append(dict(windows=label, start=f"{h:02d}:00", B_own_h=round(hrs, 2), highways=[r["road"] for r in t if r["road"] != "local"],
                          waits=sum(r["wait"] > 1 for r in t), unsafe=unsafe))
 print("\n---- Experiment 7: change the danger hours ----")
-display(pd.DataFrame(rows))
+exp7 = pd.DataFrame(rows)
+display(exp7)
+save_csv(exp7, "exp7_danger_hours.csv")
 #endregion
+
+print("\nAll outputs saved to", OUT_DIR)

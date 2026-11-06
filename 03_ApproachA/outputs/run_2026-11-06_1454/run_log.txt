@@ -1,4 +1,4 @@
-Run folder: C:\Users\pehel\Documents\cs201-project\03_ApproachA\outputs\run_2026-11-06_1350
+Run folder: C:\Users\pehel\Documents\cs201-project\03_ApproachA\outputs\run_2026-11-06_1454
 Loaded 12 zones from data/zones(augmented data)\zones.csv
 Loaded 108 road points from data/zones(augmented data)\zone_points.csv
 Gateways read from data/zones(augmented data)\gateways.csv -> ['CJ', 'GERIK', 'GM', 'JELI']
@@ -56,19 +56,19 @@ start: Ipoh | towns: 161 | corridor winding ratio: 1.41 | zone discs in grid: 10
 10  18:00               A: detour only    64.62    2.63        2          0              0.0    3719.3            0               0
 11  18:00             A: wait + detour    64.62    2.63        2          0              0.0    3719.3            0               0
 Default road: Route 4. The other road costs 121 km more (+121 min at 60 km/h). The detour wins whenever the wait is longer than that.
-   zones  discs  grid_ms  brute_ms  speedup  grid_build_ms  grid_peak_KB  identical_results
-0      4    108     61.5      32.3     0.52            4.0           8.1               True
-1     50     50     13.4      32.6     2.44            2.3          28.5               True
-2    500    500     58.0     704.8    12.14           30.1         199.0               True
-3   5000   5000    431.7    8492.8    19.67          222.1         688.2               True
+       zones  discs  grid_ms  brute_ms  speedup  grid_build_ms  grid_peak_KB  identical_results
+0  12 (real)    108     65.3      28.5     0.44            3.7           8.1               True
+1         50     50     11.3      29.0     2.57            2.1          28.5               True
+2        500    500     70.5     610.3     8.65           27.3         199.0               True
+3       5000   5000    382.1    7930.5    20.75          197.1         688.2               True
 Cell-size sweep (500 synthetic zones):
    cell_km  occupied_cells  avg_zones_per_cell  build_ms  query_ms  peak_KB
-0        1           10986                1.14      98.7     102.2   2198.4
-1        2            3764                1.20      38.8      52.8    670.5
-2        5            1138                1.42      21.0      58.8    203.4
-3       10             440                2.26      17.0     114.0     90.5
-4       20             142                5.25      12.9     265.5     39.4
-5       50              30               19.43      12.3    1060.3     23.9
+0        1           10986                1.14      93.4     105.2   2198.4
+1        2            3764                1.20      40.3      49.7    670.5
+2        5            1138                1.42      19.7      57.8    203.4
+3       10             440                2.26      15.5     105.3     90.5
+4       20             142                5.25      12.9     247.4     39.4
+5       50              30               19.43      11.3    1079.9     23.9
                                    quantity  model_km  google_km  error_pct
 0    Bachok <-> Changkat Jering via Route 4     328.4        344       -4.5
 1  Bachok <-> Changkat Jering via Route 185     398.8        410       -2.7

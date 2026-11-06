@@ -1,0 +1,13 @@
+start,method,total_h,wait_h,n_R185_legs,n_detours,total_km,unsafe_legs,A_own_total_h
+06:00,Team baseline (Route 4 only),67.61,0.0,0,0,4056.8,3,
+06:00,A: wait only,62.45,0.0,1,0,3747.0,0,62.46
+06:00,A: detour only,62.45,0.0,1,0,3747.0,0,62.46
+06:00,A: wait + detour,62.45,0.0,1,0,3747.0,0,62.46
+08:00,Team baseline (Route 4 only),67.61,0.0,0,0,4056.8,3,
+08:00,A: wait only,76.23,13.78,1,0,3747.0,0,76.24
+08:00,A: detour only,74.62,10.11,1,1,3871.0,0,74.62
+08:00,A: wait + detour,74.62,10.11,1,1,3871.0,0,74.62
+18:00,Team baseline (Route 4 only),67.61,0.0,0,0,4056.8,3,
+18:00,A: wait only,64.62,2.63,1,0,3719.6,0,64.62
+18:00,A: detour only,64.62,2.63,1,0,3719.6,0,64.62
+18:00,A: wait + detour,64.62,2.63,1,0,3719.6,0,64.62

@@ -9,11 +9,11 @@ Inputs:
 
 Builds a graph whose nodes are (place, time-of-day slot) pairs.
 
-|     Edge      |             From → To             |  Cost   |                  Exists when                |
-|---------------|-----------------------------------|---------|---------------------------------------------|
-|      wait     |     (place, s) → (place, s+1)     | 1 slot  |                     always                  |
-|  local drive  |         (i, s) → (j, s+k)         | k slots |      only if is safe when entering at s     |
-| highway drive | (gateway a, s) → (gateway b, s+k) | k slots | only if highway is safe when entering at s  |
+|     Edge      |             From → To             |  Cost   |                  Exists when               |
+|---------------|-----------------------------------|---------|--------------------------------------------|
+|      wait     |     (place, s) → (place, s+1)     | 1 slot  |                     always                 |
+|  local drive  |         (i, s) → (j, s+k)         | k slots |      only if is safe when started at s     |
+| highway drive | (gateway a, s) → (gateway b, s+k) | k slots | only if highway is safe when started at s  |
 
 Unsafe drives do not exist in the graph, so every path Dijkstra finds is safe and waiting is chosen automatically
 (another edge). Zone hours repeat daily, slots wrap around midnight and the graph has (places x slots_per_day) nodes whatever the trip length.
@@ -140,7 +140,7 @@ class Network:
     Attributes
         places: list of {"name", "state", "latitude", "longitude"}
         index(dict): place name -> place number
-        name(dict): place number -> place name
+        name(list): place number -> place name
         n_towns: places 0 .. n_towns-1 are towns, the rest are junctions
         legs(dict): place number -> list of Leg leaving that place
         zones_on_route(dict): route_id -> list of zones that lie on that highway ([] for a zone-free road)
@@ -181,7 +181,7 @@ class Network:
             geom = [(*coords(gateway_a), 0.0)] + pts + [(*coords(gateway_b), L)] # start gateway, all the points (of danger zones on this highway/route), end gateway
             spans = zone_spans(geom, L, zones)
 
-            # build the get the spans when going the other way down the highway (b -> a)
+            # the spans when driving the other way (b → a)
             reverse = [ZoneSpan(zid, L - span_end, L - span_start, active_from, active_to) 
                         for zid, span_start, span_end, active_from, active_to in spans]
 
@@ -287,7 +287,7 @@ class TimeExpandedGraph:
     def n_edges(self):
         """Number of edges a full adjacency list would hold (each wait and drive, at every slot it exists)."""
         per_slot = sum(1 + len(v) for v in self.static.values())
-        return per_slot * self.num_daily_slots + sum(sum(e[4]) for v in self.timed.values() for e in v)
+        return per_slot * self.num_daily_slots + sum(sum(e.safe_at_slot) for v in self.timed.values() for e in v)
 
 # summary of build
 t = time.perf_counter()
@@ -449,6 +449,11 @@ def edit_spans(n, change):
             leg["spans"] = [s2 for s in leg["spans"] if (s2 := change(s)) is not None]
     return n2
 
+def run_on(n, start_hour, start=SIM_START):
+    t0 = start_hour * 60
+    tour = run_B(n, n.index[start], t0, graph=TimeExpandedGraph(n, SLOT_MIN))
+    return tour, (tour[-1]["arrive"] - t0) / 60
+
 SCENARIO = ("Kota Bharu", 6)
 
 # ---- Experiment 1: try diff start times and locations ----
@@ -515,13 +520,13 @@ def shade_active_hours(zones):
             plt.axvspan(s / 60, e / 60, color="grey", alpha=.12, label="zones active" if i == j == 0 else None)
 
 def departure_sweep(graph, frm, to):
-      rows = []
-      for s in range(graph.num_daily_slots):
-          _, path = dijkstra(graph, (frm, s), {to})
-          rows.append(dict(depart_h=s * graph.slot / 60,
-                           hours=slots_taken(path, graph) * graph.slot / 60,
-                           choice=choice(path)))
-      return pd.DataFrame(rows)
+    rows = []
+    for s in range(graph.num_daily_slots):
+        _, path = dijkstra(graph, (frm, s), {to})
+        rows.append(dict(depart_h=s * graph.slot / 60,
+                        hours=slots_taken(path, graph) * graph.slot / 60,
+                        choice=choice(path)))
+    return pd.DataFrame(rows)
 
 frm, to = net.index[EXP2_TRIP[0]], net.index[EXP2_TRIP[1]]
 exp2 = departure_sweep(graph, frm, to)
@@ -531,9 +536,9 @@ display(exp2.groupby("choice").agg(departures=("depart_h", "size"), avg_hours=("
 print("\n")
 
 plt.figure(figsize=(9, 3.8))
-for lable, mark in zip(exp2.choice.unique(), itertools.cycle("os^Dv")):
-    d = exp2[exp2.choice == lable]
-    plt.scatter(d.depart_h, d.hours, s=14, marker=mark, label=choice)
+for label, mark in zip(exp2.choice.unique(), itertools.cycle("os^Dv")):
+    d = exp2[exp2.choice == label]
+    plt.scatter(d.depart_h, d.hours, s=14, marker=mark, label=label)
 shade_active_hours(zones)
 
 plt.xlabel(f"departure hour from {EXP2_TRIP[0]}")
@@ -656,7 +661,6 @@ plt.show()
 # Towns are sampled at random, in proportion per state. The gateway towns and the start town are always kept.
 EXP4_TOWN_COUNTS = (20, 40, 80, 120, len(towns))   # towns in the network
 EXP4_SEEDS       = (1, 2, 3)                       # random samples per size (one is enough for the full set)
-EXP4_MEMORY_SLOT = 60                              # memory compared at this slot size (full list is too big at 10)
 
 class CountingGraph(TimeExpandedGraph):
     """Same graph. Counts how many nodes Dijkstra settles (it calls edges() once per settled node)."""
@@ -712,7 +716,6 @@ c_theory = same_state_share * S
 # Plots: growth against P, with a P^2 reference scaled to the largest size
 P = exp4_med.places
 P_ref_line = np.linspace(0, P.max(), 200)
-ref = lambda col: exp4_med[col].iloc[-1] * (P / P.iloc[-1]) ** 2
 fig, ax = plt.subplots(1, 2, figsize=(10, 3.8))
 
 ax[0].plot(P, exp4_med.edges, "o-", label="edges")
@@ -727,15 +730,17 @@ ax[1].set_ylabel("nodes settled")
 for a in ax:
     a.set_xlabel("places in the network (P)")
     a.grid(alpha=.3)
-    a.legend()
+ax[0].legend()
 
 plt.tight_layout()
 plt.show()
 print("\n")
 
 # ---- Experiment 5: how much of B is plain Nearest Neighbour ----
+tour, _ = run_on(net, SIM_START_HOURS[-1])
 towns_in_order = [tour[0]["frm"]] + [r["to"] for r in tour if r["to"] < net.n_towns]
 visited, same = {towns_in_order[0]}, 0
+
 for cur, nxt in zip(towns_in_order, towns_in_order[1:-1]):     # skip the final return home
     local = [l for l in net.legs[cur] if l["road"] == "local" and l["to"] not in visited]
     same += bool(local) and min(local, key=lambda l: l["km"])["to"] == nxt
@@ -746,18 +751,13 @@ print(f"\n{same} of {steps} steps are plain NN")
 print (f"{steps - same} differ (state crossings or zone-driven)\n")
 
 # ---- Experiment 6: if no zones, compared to simulator ----
-def run_on(n, start_hour, start=SIM_START):
-    t0 = start_hour * 60
-    tour = run_B(n, n.index[start], t0, graph=TimeExpandedGraph(n, SLOT_MIN))
-    return tour, (tour[-1]["arrive"] - t0) / 60
-
 no_zone_net = edit_spans(net, lambda s: None)
 start = net.index[SIM_START]
 rows = []
 for h in SIM_START_HOURS:
     t_free, _ = run_on(no_zone_net, h)
     t_safe, _ = run_on(net, h)
-    base, free, safe = (score_baseline(start, h * 60), score("B no zones", t_free, start, h * 60),
+    base, free, safe = (score_baseline(start, h * 60), score("B no zones", t_free, h * 60),
                         score("B", t_safe, h * 60))
     rows.append(dict(start=f"{h:02d}:00", baseline_h=base["total_h"], baseline_unsafe=base["unsafe_legs"],
                      B_no_zones_h=free["total_h"], B_no_zones_unsafe=free["unsafe_legs"],

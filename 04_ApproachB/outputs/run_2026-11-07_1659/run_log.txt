@@ -1,4 +1,4 @@
-Run folder: /home/claude/cs201-proj-g2-t4/cs201-project/04_ApproachB/outputs/run_2026-11-07_1556
+Run folder: C:\Users\pehel\Documents\cs201-project\04_ApproachB\outputs\run_2026-11-07_1659
 {'towns': 161, 'zones': 12, 'start': 117}
 
 speed 60 km/h, straight-line factor 1.3, slot 10 min
@@ -20,7 +20,7 @@ speed 60 km/h, straight-line factor 1.3, slot 10 min
 3  Simpang Pulai  4.53100  101.12710  GeoNames MY.txt (id 1734635) - km 0 of Route 185. GeoNames tags it admin1 06 (Pahang) but it lies in Kinta district Perak so it is used as a junction not a town
 
 
-162 places (161 towns + 1 junction), network built in 13.0 s
+162 places (161 towns + 1 junction), network built in 10.2 s
 
 306 of 13092 legs pass a zone, for example:
                      from                      to   road  zones
@@ -149,11 +149,11 @@ wait, then R4           1       6.00
 
 ---- Experiment 3a: slot size ----
    slot_min  nodes    edges  build_s  tour_s  total_h  unsafe_legs
-0        60   3888   314666     0.02    0.08    76.52            0
-1        30   7776   629313     0.02    0.08    63.18            0
-2        15  15552  1258596     0.03    0.14    63.18            0
-3        10  23328  1887963     0.04    0.20    63.18            0
-4         5  46656  3775890     0.08    0.46    63.18            0
+0        60   3888   314666     0.05    0.07    76.52            0
+1        30   7776   629313     0.02    0.07    63.18            0
+2        15  15552  1258596     0.03    0.12    63.18            0
+3        10  23328  1887963     0.04    0.17    63.18            0
+4         5  46656  3775890     0.07    0.39    63.18            0
 (saved exp3a_slot_size.csv)
 
 
@@ -173,26 +173,26 @@ wait, then R4           1       6.00
 
 ----- Experiment 4: scaling with the number of places ----
     towns  seed  places  nodes    edges  timed_legs  network_s  nodes_settled  tour_s  B_own_h
-0      20     1      21   3024    32434           8       0.28           1003    0.01    28.52
-1      20     2      21   3024    32363           8       0.44           1000    0.01    28.52
-2      20     3      21   3024    32373          10       0.21           1022    0.01    28.52
-3      40     1      41   5904   122067          20       0.53           1473    0.01    34.23
-4      40     2      41   5904   122076          24       0.55           1443    0.01    32.58
-5      40     3      41   5904   122210          20       0.56           1638    0.02    32.86
-6      80     1      81  11664   472653          92       2.46           4710    0.07    52.52
-7      80     2      81  11664   472266          98       2.78           5360    0.08    54.11
-8      80     3      81  11664   472599          94       3.81           4263    0.06    53.56
-9     120     1     121  17424  1058483         128       5.84           7442    0.16    64.05
-10    120     2     121  17424  1055549         168       6.50           7015    0.18    61.45
-11    120     3     121  17424  1053827         196       6.41           6308    0.13    59.18
-12    161     1     162  23328  1887963         306      11.84           6997    0.26    63.18
+0      20     1      21   3024    32434           8       0.26           1003    0.01    28.52
+1      20     2      21   3024    32363           8       0.41           1000    0.01    28.52
+2      20     3      21   3024    32373          10       0.19           1022    0.01    28.52
+3      40     1      41   5904   122067          20       0.47           1473    0.01    34.23
+4      40     2      41   5904   122076          24       0.53           1443    0.01    32.58
+5      40     3      41   5904   122210          20       0.53           1638    0.01    32.86
+6      80     1      81  11664   472653          92       2.32           4710    0.11    52.52
+7      80     2      81  11664   472266          98       2.54           5360    0.07    54.11
+8      80     3      81  11664   472599          94       3.60           4263    0.05    53.56
+9     120     1     121  17424  1058483         128       5.22           7442    0.14    64.05
+10    120     2     121  17424  1055549         168       5.83           7015    0.19    61.45
+11    120     3     121  17424  1053827         196       5.63           6308    0.11    59.18
+12    161     1     162  23328  1887963         306      10.30           6997    0.17    63.18
 (saved exp4_scaling.csv)
    places    nodes      edges  timed_legs  nodes_settled  tour_s
 0      21   3024.0    32373.0         8.0         1003.0    0.01
 1      41   5904.0   122076.0        20.0         1473.0    0.01
 2      81  11664.0   472599.0        94.0         4710.0    0.07
-3     121  17424.0  1055549.0       168.0         7015.0    0.16
-4     162  23328.0  1887963.0       306.0         6997.0    0.26
+3     121  17424.0  1055549.0       168.0         7015.0    0.14
+4     162  23328.0  1887963.0       306.0         6997.0    0.17
 (saved exp4_scaling.png)
 
 
@@ -223,4 +223,4 @@ wait, then R4           1       6.00
 8  all 07-19 (day)  18:00    60.74    [R4, R185]      0       0
 (saved exp7_danger_hours.csv)
 
-All outputs saved to /home/claude/cs201-proj-g2-t4/cs201-project/04_ApproachB/outputs/run_2026-11-07_1556
+All outputs saved to C:\Users\pehel\Documents\cs201-project\04_ApproachB\outputs\run_2026-11-07_1659

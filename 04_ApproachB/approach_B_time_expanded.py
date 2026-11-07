@@ -501,7 +501,6 @@ print(f"B is faster than the baseline in {(exp1.B_h < exp1.baseline_h - 0.01).su
 print(f"Average: baseline {exp1.baseline_h.mean():.2f} h, B {exp1.B_h.mean():.2f} h.")
 print()
 display(exp1)
-save_csv(exp1, "exp1_baseline_vs_B.csv")
 print("\n")
 
 plt.figure(figsize=(5.5, 5))
@@ -565,7 +564,6 @@ def departure_sweep(graph, frm, to):
 
 frm, to = net.index[EXP2_TRIP[0]], net.index[EXP2_TRIP[1]]
 exp2 = departure_sweep(graph, frm, to)
-save_csv(exp2, "exp2_departure_sweep.csv")
 
 print("\n---- Experiment 2: show diff arrival time for each departure time ----")
 display(exp2.groupby("choice").agg(departures=("depart_h", "size"), avg_hours=("hours", "mean")).round(2))
@@ -590,7 +588,7 @@ detour_zones = {z["id"] for z in zones if z.get("route") == DETOUR_ROUTE}      #
 
 no_detour_zone_net = edit_spans(net, lambda s: None if s.zone_id in detour_zones else s)
 exp2_detour = departure_sweep(TimeExpandedGraph(no_detour_zone_net), frm, to)
-save_csv(exp2_detour, "exp2b_no_detour_zones.csv")
+save_table(exp2_detour, "exp2b_no_detour_zones.csv")
 
 print(f"\n---- Experiment 2b: {EXP2_TRIP[0]} -> {EXP2_TRIP[1]} without {sorted(detour_zones)} ----")
 display(exp2_detour.groupby("choice").agg(departures=("depart_h", "size"), avg_hours=("hours", "mean")).round(2))
@@ -629,7 +627,6 @@ for slot in EXP3_SLOT_SIZES:
 print("\n---- Experiment 3a: slot size ----")
 exp3a = pd.DataFrame(rows)
 display(exp3a)
-save_csv(exp3a, "exp3a_slot_size.csv")
 print("\n")
 
 fig, ax = plt.subplots(1, 2, figsize=(10, 3.8))
@@ -681,7 +678,6 @@ for slot in EXP3_SLOT_SIZES:
 print("\n---- Experiment 3b: compact vs full adjacency list ----")
 exp3b = pd.DataFrame(rows)
 display(exp3b)
-save_csv(exp3b, "exp3b_memory.csv")
 print("\n")
 
 plt.figure(figsize=(5.5, 3.8))
@@ -752,7 +748,6 @@ exp4_med = exp4.groupby("places").median(numeric_only=True).reset_index()   # me
 
 print("\n----- Experiment 4: scaling with the number of places ----")
 display(exp4)
-save_csv(exp4, "exp4_scaling.csv")
 display(exp4_med[["places", "nodes", "edges", "timed_legs", "nodes_settled", "tour_s"]])
 print("\n")
 

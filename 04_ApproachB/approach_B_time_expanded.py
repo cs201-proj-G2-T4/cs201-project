@@ -39,18 +39,18 @@ import math, time, os, sys, heapq, tracemalloc, itertools
 from typing import NamedTuple, TypedDict
 import numpy as np
 import pandas as pd
-import copy
-import sys, datetime
 import matplotlib
-matplotlib.use("Agg")                 # before pyplot: draw to files only, never open a window
+matplotlib.use("Agg")                  # save charts to files instead of opening windows
 import matplotlib.pyplot as plt
+import copy, datetime
 
+# every run gets its own folder: 04_ApproachB/outputs/run_<date>_<time>/ (CSVs, PNGs, run_log.txt)
 OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outputs",
                        "run_" + datetime.datetime.now().strftime("%Y-%m-%d_%H%M"))
 os.makedirs(OUT_DIR, exist_ok=True)
 
 class _Tee:
-    """Sends everything printed to the terminal and to run_log.txt."""
+    """Everything printed also goes to run_log.txt"""
     def __init__(self, *streams): self.streams = streams
     def write(self, data):
         for st in self.streams: st.write(data)
@@ -61,11 +61,15 @@ sys.stdout = _Tee(sys.__stdout__, _log)
 print("Run folder:", OUT_DIR)
 
 def save_fig(name):
-    plt.savefig(os.path.join(OUT_DIR, f"{name}.png"), dpi=150, bbox_inches="tight")
+    """Save the current chart to OUT_DIR and close it."""
+    plt.savefig(os.path.join(OUT_DIR, name), dpi=150, bbox_inches="tight")
     plt.close()
+    print(f"(saved {name})")
 
-def save_table(df, name):
-    df.to_csv(os.path.join(OUT_DIR, f"{name}.csv"), index=False)
+def save_csv(df, name):
+    """Save a results table to OUT_DIR."""
+    df.to_csv(os.path.join(OUT_DIR, name), index=False)
+    print(f"(saved {name})")
 
 def display(x):
     print(x.to_string() if hasattr(x, "to_string") else x)
@@ -168,6 +172,7 @@ class Network:
         name(list): place number -> place name
         n_towns: places 0 .. n_towns-1 are towns, the rest are junctions
         legs(dict): place number -> list of Leg leaving that place
+        zones_on_route(dict): route_id -> list of zones that lie on that highway ([] for a zone-free road)
     """
     def __init__(self, towns, dist_km, routes, gateways, zones, speed=SPEED_KMH):
         self.speed, self.n_towns = speed, len(towns)
@@ -192,11 +197,16 @@ class Network:
                 km = float(dist_km[i, j]) if are_both_towns else sim.haversine_km(*coords(i), *coords(j)) * DETOUR_FACTOR
                 spans = zone_spans([(*coords(i), 0.0), (*coords(j), km)], km, zones)
                 self.legs[i].append(Leg(to=j, road="local", km=km, spans=spans))
+
+        zones_on_route = {r.route_id: [] for r in routes.itertuples()}
+        for zone in zones:
+            if zone.get("route") in zones_on_route:
+                zones_on_route[zone["route"]].append(zone)
+        self.zones_on_route = zones_on_route
             
         for r in routes.itertuples():
             L, gateway_a, gateway_b = float(r.length_km), idx[r.gateway_a], idx[r.gateway_b]
-            pts = sorted((p for z in zones if z.get("route") == r.route_id for p in z["points"]),
-                         key=lambda p: p[2])
+            pts = sorted((p for z in zones_on_route[r.route_id] for p in z["points"]), key=lambda p: p[2])
             geom = [(*coords(gateway_a), 0.0)] + pts + [(*coords(gateway_b), L)] # start gateway, all the points (of danger zones on this highway/route), end gateway
             spans = zone_spans(geom, L, zones)
 
@@ -275,8 +285,7 @@ class TimedEdge(NamedTuple):
 
 class TimeExpandedGraph:
     def __init__(self, net, slot_min=SLOT_MIN):
-        self.net = net
-        self.slot = slot_min
+        self.net, self.slot = net, slot_min
         self.num_daily_slots = MIN_PER_DAY // slot_min
 
         # function to calculate how many slots that drive takes
@@ -516,24 +525,10 @@ plt.legend()
 plt.grid(alpha=.3)
 plt.title(f"{len(exp1)} tours, scored by simulator.py")
 
-save_table(exp1, "exp1_starts_and_hours")
-save_fig("exp1_baseline_vs_B")
-
+save_fig("exp1_baseline_vs_B.png")
 
 # ---- Experiment 2: show diff arrival time for each departure time ----
 EXP2_TRIP = ("Ipoh", "Kota Bharu")
-
-CHOICE_STYLE = {                       # same colour and marker for a choice in every plot
-    "R4":               dict(color="tab:green",  marker="^"),
-    "wait, then R4":    dict(color="tab:orange", marker="s"),
-    "R185":             dict(color="tab:blue",   marker="o"),
-    "wait, then R185":  dict(color="tab:purple", marker="D"),
-    "local roads only": dict(color="tab:gray",   marker="v"),
-}
-
-def plot_choices(df):
-    for label, d in df.groupby("choice", sort=False):
-        plt.scatter(d.depart_h, d.hours, s=14, label=label, **CHOICE_STYLE.get(label, {}))
 
 def choice(path):
     highways = [road for _, _, road in path if road not in ("local", "wait")]
@@ -570,21 +565,23 @@ display(exp2.groupby("choice").agg(departures=("depart_h", "size"), avg_hours=("
 print("\n")
 
 plt.figure(figsize=(9, 3.8))
-plot_choices(exp2)
+for label, mark in zip(exp2.choice.unique(), itertools.cycle("os^Dv")):
+    d = exp2[exp2.choice == label]
+    plt.scatter(d.depart_h, d.hours, s=14, marker=mark, label=label)
+shade_active_hours(zones)
+
 plt.xlabel(f"departure hour from {EXP2_TRIP[0]}")
 plt.ylabel(f"hours until {EXP2_TRIP[1]}")
 plt.xticks(range(0, 25, 2))
-plt.title(f"{EXP2_TRIP[0]} → {EXP2_TRIP[1]}: road B chooses by departure time")
-plt.legend(title="B's choice", loc="upper left", bbox_to_anchor=(1.01, 1))
+
+plt.title(f"{EXP2_TRIP[0]} -> {EXP2_TRIP[1]}: B's choice by departure time")
+plt.legend()
 plt.grid(alpha=.3)
-
-save_table(exp2, "exp2_departure_sweep")
-save_fig("exp2_choice_by_departure")
-
+save_fig("exp2_departure_sweep.png")
 
 # ---- Experiment 2b: what if the detour road had no zones? ----
 DETOUR_ROUTE = "R185"
-detour_zones = {z["id"] for z in zones if z.get("route") == DETOUR_ROUTE}      # {"Z6", "Z7"}, read from the data
+detour_zones = {z["id"] for z in net.zones_on_route[DETOUR_ROUTE]}       # {"Z6", "Z7"}, read from the data
 
 no_detour_zone_net = edit_spans(net, lambda s: None if s.zone_id in detour_zones else s)
 exp2_detour = departure_sweep(TimeExpandedGraph(no_detour_zone_net), frm, to)
@@ -594,16 +591,13 @@ print(f"\n---- Experiment 2b: {EXP2_TRIP[0]} -> {EXP2_TRIP[1]} without {sorted(d
 display(exp2_detour.groupby("choice").agg(departures=("depart_h", "size"), avg_hours=("hours", "mean")).round(2))
 
 plt.figure(figsize=(9, 3.8))
-plt.plot(exp2.depart_h, exp2.hours, "-", color="grey", lw=1.5, label="real data (R185 zones kept)")
-plot_choices(exp2_detour)
-plt.xlabel(f"departure hour from {EXP2_TRIP[0]}")
-plt.ylabel(f"hours until {EXP2_TRIP[1]}")
-plt.xticks(range(0, 25, 2))
-plt.title(f"Removing the zones on {DETOUR_ROUTE}")
-plt.legend(title=f"B's choice without {DETOUR_ROUTE} zones", loc="upper left", bbox_to_anchor=(1.01, 1))
-plt.grid(alpha=.3)
-save_fig("exp2b_with_vs_without")
-
+plt.plot(exp2.depart_h, exp2.hours, "-", color="grey", label="real zones")
+for label, mark in zip(exp2_detour.choice.unique(), itertools.cycle("os^Dv")):
+    d = exp2_detour[exp2_detour.choice == label]
+    plt.scatter(d.depart_h, d.hours, s=14, marker=mark, label=f"no {DETOUR_ROUTE} zones: {label}")
+shade_active_hours(zones)
+plt.xlabel(f"departure hour from {EXP2_TRIP[0]}"); plt.ylabel(f"hours until {EXP2_TRIP[1]}"); plt.xticks(range(0, 25, 2))
+plt.title(f"With vs without zones on {DETOUR_ROUTE}"); plt.legend(); plt.grid(alpha=.3); save_fig("exp2b_no_detour_zones.png")
 
 # ---- Experiment 3a: slot size -> accuracy vs speed ----
 # Smaller slots round travel times less (closer to the exact clock) but give more nodes and edges to search.
@@ -645,9 +639,7 @@ for a in ax:
     a.grid(alpha=.3)
 
 plt.tight_layout()
-
-save_table(exp3a, "exp3a_slot_size")
-save_fig("exp3a_slot_size")
+save_fig("exp3a_slot_size.png")
 
 
 # ---- Experiment 3b: storage -> compact vs full adjacency list ----
@@ -691,10 +683,7 @@ plt.ylabel("peak memory (MB)")
 plt.title("Memory: same graph, two storages")
 plt.legend()
 plt.grid(alpha=.3)
-
-save_table(exp3b, "exp3b_memory")
-save_fig("exp3b_memory")
-
+save_fig("exp3b_memory.png")
 
 # ---- Experiment 4: scaling with the number of places ----
 # Build the Network on n towns.
@@ -749,7 +738,6 @@ exp4_med = exp4.groupby("places").median(numeric_only=True).reset_index()   # me
 print("\n----- Experiment 4: scaling with the number of places ----")
 display(exp4)
 display(exp4_med[["places", "nodes", "edges", "timed_legs", "nodes_settled", "tour_s"]])
-print("\n")
 
 S = graph.num_daily_slots
 same_state_share = (towns.state.value_counts() ** 2).sum() / len(towns) ** 2
@@ -775,9 +763,8 @@ for a in ax:
 ax[0].legend()
 
 plt.tight_layout()
-save_table(exp4, "exp4_scaling")
-save_fig("exp4_scaling")
-
+save_fig("exp4_scaling.png")
+print("\n")
 
 # ---- Experiment 5: how much of B is plain Nearest Neighbour ----
 tour, _ = run_on(net, SIM_START_HOURS[-1])
@@ -806,8 +793,9 @@ for h in SIM_START_HOURS:
                      B_no_zones_h=free["total_h"], B_no_zones_unsafe=free["unsafe_legs"],
                      B_h=safe["total_h"], B_unsafe=safe["unsafe_legs"]))
 print("\n----- Experiment 6: if no zones, compared to simulator ----")
-display(pd.DataFrame(rows))
-save_table(pd.DataFrame(rows), "exp6_no_zones")
+exp6 = pd.DataFrame(rows)
+display(exp6)
+save_csv(exp6, "exp6_no_zones.csv")
 
 # ---- Experiment 7: change the danger hours ----
 WINDOWS = [(None, None, "real (mixed)"), (19, 7, "all 19-07"), (7, 19, "all 07-19 (day)")]
@@ -822,8 +810,9 @@ for frm, to, label in WINDOWS:
         rows.append(dict(windows=label, start=f"{h:02d}:00", B_own_h=round(hrs, 2), highways=[r["road"] for r in t if r["road"] != "local"],
                          waits=sum(r["wait"] > 1 for r in t), unsafe=unsafe))
 print("\n---- Experiment 7: change the danger hours ----")
-display(pd.DataFrame(rows))
-save_table(pd.DataFrame(rows), "exp7_danger_hours")
+exp7 = pd.DataFrame(rows)
+display(exp7)
+save_csv(exp7, "exp7_danger_hours.csv")
 #endregion
 
 print("\nAll outputs saved to", OUT_DIR)

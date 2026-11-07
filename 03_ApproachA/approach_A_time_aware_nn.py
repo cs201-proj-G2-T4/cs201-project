@@ -57,16 +57,18 @@ CFG = dict(
     CORRIDOR_TOTAL_KM = 126.0,
     KM0_OFFSET_KM     = 0.0,   # distance from Gerik town to zone-table km 0. See the sanity-check cell.
     # --- Route 185 detour (zones Z6, Z7 from zones.csv), measured: Perak end -> Gua Musang ---
-    R185_MAIN_KM   = 217.0,
+    R185_MAIN_KM   = 156.0,
 )
 
 # Gateway points (APPROXIMATE: overridden from your dataset if found, please verify)
 GATE = dict(
     GERIK=(5.4308, 101.1275),
     JELI=(5.7000, 101.8333),
-    CJ=(4.7800, 100.7800),      # Changkat Jering (Perak end of Route 185)
+    SP=(4.5310, 101.1271),      # Simpang Pulai (km 0 of Route 185, Perak end)
     GM=(4.8833, 101.9667),      # Gua Musang
 )
+# Point the Google Maps checks in Experiment 5 were measured from (Changkat Jering, NSE). Not a gateway.
+CHANGKAT_JERING = (4.7800, 100.7800)
 
 # Your zone table (times as H:MM)
 ZONE_ROWS = [
@@ -98,7 +100,7 @@ else:
 # ---- roads and gateways (optional CSVs; otherwise the built-in values in CFG / GATE are used) ----
 ROADS_DIR = sys.argv[3] if len(sys.argv) > 3 else ZONES_DIR
 GATE_FROM_CSV = set()
-_GATE_KEYS = {"gerik": "GERIK", "kampung jeli": "JELI", "gua musang": "GM", "changkat jering": "CJ"}
+_GATE_KEYS = {"gerik": "GERIK", "kampung jeli": "JELI", "gua musang": "GM", "simpang pulai": "SP"}
 _gp, _rp = os.path.join(ROADS_DIR, "gateways.csv"), os.path.join(ROADS_DIR, "routes.csv")
 if os.path.exists(_gp):
     for _r in pd.read_csv(_gp, sep=None, engine="python").itertuples():
@@ -340,10 +342,10 @@ def r4_path_east(p, k):
     return _fix(lats, lons, cum)
 
 def r185_path_east(p, k):
-    """Perak town p -> Changkat Jering -> Route 185 zones -> Gua Musang -> Kelantan town k."""
-    ks = route_knots("R185"); c1 = est(p, GATE["CJ"]); c2 = c1 + CFG["R185_MAIN_KM"]
-    lats = [p[0], GATE["CJ"][0]] + [q[0] for q in ks] + [GATE["GM"][0], k[0]]
-    lons = [p[1], GATE["CJ"][1]] + [q[1] for q in ks] + [GATE["GM"][1], k[1]]
+    """Perak town p -> Simpang Pulai -> Route 185 zones -> Gua Musang -> Kelantan town k."""
+    ks = route_knots("R185"); c1 = est(p, GATE["SP"]); c2 = c1 + CFG["R185_MAIN_KM"]
+    lats = [p[0], GATE["SP"][0]] + [q[0] for q in ks] + [GATE["GM"][0], k[0]]
+    lons = [p[1], GATE["SP"][1]] + [q[1] for q in ks] + [GATE["GM"][1], k[1]]
     cum = [0.0, c1] + [c1 + q[2] for q in ks] + [c2, c2 + est(GATE["GM"], k)]
     return _fix(lats, lons, cum)
 
@@ -603,7 +605,7 @@ display(pd.DataFrame(rows))
 
 
 bach = next(((r.lat, r.lon) for r in towns.itertuples() if r.town == "Bachok"), (6.0667, 102.4))
-p = GATE["CJ"]
+p = CHANGKAT_JERING      # the Google figures above were measured from here; the model now enters Route 185 at Simpang Pulai
 m4 = float(r4_path_east(p, bach)[2][-1]); m5 = float(r185_path_east(p, bach)[2][-1]); gm = est(GATE["GM"], bach)
 chk = pd.DataFrame([
     dict(quantity="Bachok <-> Changkat Jering via Route 4", model_km=round(m4, 1), google_km=344),

@@ -1,0 +1,226 @@
+Run folder: C:\Users\pehel\Documents\cs201-project\04_ApproachB\outputs\run_2026-11-07_1659
+{'towns': 161, 'zones': 12, 'start': 117}
+
+speed 60 km/h, straight-line factor 1.3, slot 10 min
+
+
+161 towns, 12 zones, 2 highways
+
+2 highways:
+  route_id                                  name      gateway_a     gateway_b  length_km                                                                                                                                     source
+0       R4           East-West Highway (Route 4)          Gerik  Kampung Jeli      126.0                                                                                Google Maps: Gerik to Kampung Jeli via Route 4 (1 h 58 min)
+1     R185  Second East-West Highway (Route 185)  Simpang Pulai    Gua Musang      156.0  Route 185 km 0 is at Simpang Pulai (Wikipedia: Second East-West Highway) - Simpang Pulai to Gua Musang 156 km (Rome2Rio driving estimate)
+
+
+4 gateways:
+            name      lat        lon                                                                                                                                                            source
+0          Gerik  5.41667  101.13333                                                                                                                                                   GeoNames MY.txt
+1   Kampung Jeli  5.70000  101.83333                                                                                                                                                   GeoNames MY.txt
+2     Gua Musang  4.88441  101.96857                                                                                                                                                   GeoNames MY.txt
+3  Simpang Pulai  4.53100  101.12710  GeoNames MY.txt (id 1734635) - km 0 of Route 185. GeoNames tags it admin1 06 (Pahang) but it lies in Kinta district Perak so it is used as a junction not a town
+
+
+162 places (161 towns + 1 junction), network built in 10.2 s
+
+306 of 13092 legs pass a zone, for example:
+                     from                      to   road  zones
+0            Kampong Chap              Gua Musang  local  [Z10]
+1  Kampong Cherang Hangus              Gua Musang  local  [Z10]
+2           Kampong Jerus              Gua Musang  local  [Z10]
+3    Kampong Kuala Sering    Kampung Kuala Layang  local  [Z11]
+4        Kampong Tok Ajam              Gua Musang  local  [Z10]
+5             Kampung Ger              Gua Musang  local  [Z10]
+6              Gua Musang            Kampong Chap  local  [Z10]
+7              Gua Musang  Kampong Cherang Hangus  local  [Z10]
+8              Gua Musang           Kampong Jerus  local  [Z10]
+9              Gua Musang        Kampong Tok Ajam  local  [Z10]
+
+
+Time-expanded graph: 23,328 nodes, 1,887,963 edges (162 places x 144 slots of 10 min), built in 0.04 s, 306 legs pass a zone
+
+
+---- Simulator run ----
+Tour from Ipoh at 06:00 visits 161 towns in 164 legs. Highway legs and waits:
+          frm             to  road     km    depart  wait_min    arrive
+0       Gerik   Kampung Jeli    R4  126.0  d1 15:54         0  d1 18:00
+1  Gua Musang  Simpang Pulai  R185  156.0  d2 15:58         0  d2 18:34
+
+       method  total_h  waits  R4  R185  total_km  unsafe_legs
+0    baseline    67.61      0   4     0    4056.8            3
+1  Approach B    60.74      0   1     1    3644.3            0
+
+
+Tour from Ipoh at 08:00 visits 161 towns in 164 legs. Highway legs and waits:
+             frm             to  road     km    depart  wait_min    arrive
+0  Simpang Pulai     Gua Musang  R185  156.0  d2 05:50       606  d2 08:26
+1     Gua Musang  Simpang Pulai  R185  156.0  d3 07:50        32  d3 10:26
+
+       method  total_h  waits  R4  R185  total_km  unsafe_legs
+0    baseline    67.61      0   4     0    4056.8            3
+1  Approach B    74.60      2   0     2    3838.1            0
+
+
+Tour from Ipoh at 18:00 visits 161 towns in 164 legs. Highway legs and waits:
+             frm             to  road     km    depart  wait_min    arrive
+0  Simpang Pulai     Gua Musang  R185  156.0  d2 05:50       212  d2 08:26
+1     Gua Musang  Simpang Pulai  R185  156.0  d3 07:50        32  d3 10:26
+
+       method  total_h  waits  R4  R185  total_km  unsafe_legs
+0    baseline    67.61      0   4     0    4056.8            3
+1  Approach B    64.60      2   0     2    3631.9            0
+
+
+
+---- Experiment 1: try diff start times and locations ----
+Baseline drives through an active zone in 44 of 44 tours (100%).
+Approach B is unsafe in 0 tours.
+B is faster than the baseline in 38 tours, slower in 6.
+Average: baseline 70.70 h, B 64.46 h.
+
+                        start   hour  baseline_h  baseline_unsafe_legs    B_h  B_waits  B_R4  B_R185  B_unsafe_legs
+0                Kampong Chap  00:00       69.46                     2  69.08        1     1       1              0
+1                Kampong Chap  06:00       69.46                     4  63.08        1     1       1              0
+2                Kampong Chap  12:00       69.46                     5  70.60        1     1       1              0
+3                Kampong Chap  18:00       69.46                     3  64.60        1     1       1              0
+4         Kampung Rangka Baru  00:00       72.88                     5  67.94        1     1       1              0
+5         Kampung Rangka Baru  06:00       72.88                     4  61.94        1     1       1              0
+6         Kampung Rangka Baru  12:00       72.88                     2  69.36        1     1       1              0
+7         Kampung Rangka Baru  18:00       72.88                     3  63.36        1     1       1              0
+8                  Kota Bharu  00:00       73.72                     4  69.18        1     1       1              0
+9                  Kota Bharu  06:00       73.72                     4  63.18        1     1       1              0
+10                 Kota Bharu  12:00       73.72                     5  70.52        1     2       0              0
+11                 Kota Bharu  18:00       73.72                     5  64.52        1     2       0              0
+12       Kampong Pasir Senang  00:00       68.60                     1  68.22        1     1       1              0
+13       Kampong Pasir Senang  06:00       68.60                     3  62.22        1     1       1              0
+14       Kampong Pasir Senang  12:00       68.60                     5  69.86        1     1       1              0
+15       Kampong Pasir Senang  18:00       68.60                     4  63.86        1     1       1              0
+16          Kampung Air Limau  00:00       68.43                     5  67.98        1     1       1              0
+17          Kampung Air Limau  06:00       68.43                     2  61.98        1     1       1              0
+18          Kampung Air Limau  12:00       68.43                     3  69.52        1     1       1              0
+19          Kampung Air Limau  18:00       68.43                     4  63.52        1     1       1              0
+20                      Tapah  00:00       73.90                     5  59.79        0     0       2              0
+21                      Tapah  06:00       73.90                     6  59.77        0     0       2              0
+22                      Tapah  12:00       73.90                     3  71.34        2     0       2              0
+23                      Tapah  18:00       73.90                     2  65.34        2     0       2              0
+24  Kampung Sungai Malau Luar  00:00       69.54                     2  62.13        0     1       1              0
+25  Kampung Sungai Malau Luar  06:00       69.54                     1  60.20        0     1       1              0
+26  Kampung Sungai Malau Luar  12:00       69.54                     4  69.96        2     1       1              0
+27  Kampung Sungai Malau Luar  18:00       69.54                     5  65.87        1     2       0              0
+28                       Ipoh  00:00       67.61                     3  58.74        0     0       2              0
+29                       Ipoh  06:00       67.61                     3  60.74        0     1       1              0
+30                       Ipoh  12:00       67.61                     4  70.60        2     0       2              0
+31                       Ipoh  18:00       67.61                     3  64.60        2     0       2              0
+32                      Lahat  00:00       73.57                     3  58.65        1     0       2              0
+33                      Lahat  06:00       73.57                     5  57.25        0     0       2              0
+34                      Lahat  12:00       73.57                     4  70.73        2     1       1              0
+35                      Lahat  18:00       73.57                     2  64.73        2     1       1              0
+36                    Simpang  00:00       72.27                     5  60.03        0     0       2              0
+37                    Simpang  06:00       72.27                     5  60.01        0     0       2              0
+38                    Simpang  12:00       72.27                     3  58.15        1     1       1              0
+39                    Simpang  18:00       72.27                     4  58.51        0     1       1              0
+40                  Ulu Kinta  00:00       67.71                     3  58.90        0     0       2              0
+41                  Ulu Kinta  06:00       67.71                     3  60.90        0     1       1              0
+42                  Ulu Kinta  12:00       67.71                     4  70.42        2     1       1              0
+43                  Ulu Kinta  18:00       67.71                     3  64.42        2     1       1              0
+(saved exp1_baseline_vs_B.csv)
+
+
+(saved exp1_baseline_vs_B.png)
+(saved exp2_departure_sweep.csv)
+
+---- Experiment 2: show diff arrival time for each departure time ----
+               departures  avg_hours
+choice                              
+R185                    9       6.00
+R4                     63       5.83
+wait, then R4          72      11.92
+
+
+(saved exp2_departure_sweep.png)
+(saved exp2b_no_detour_zones.csv)
+
+---- Experiment 2b: Ipoh -> Kota Bharu without ['Z6', 'Z7'] ----
+               departures  avg_hours
+choice                              
+R185                   80       6.00
+R4                     63       5.83
+wait, then R4           1       6.00
+(saved exp2b_no_detour_zones.png)
+
+---- Experiment 3a: slot size ----
+   slot_min  nodes    edges  build_s  tour_s  total_h  unsafe_legs
+0        60   3888   314666     0.05    0.07    76.52            0
+1        30   7776   629313     0.02    0.07    63.18            0
+2        15  15552  1258596     0.03    0.12    63.18            0
+3        10  23328  1887963     0.04    0.17    63.18            0
+4         5  46656  3775890     0.07    0.39    63.18            0
+(saved exp3a_slot_size.csv)
+
+
+(saved exp3a_slot_size.png)
+
+---- Experiment 3b: compact vs full adjacency list ----
+   slot_min    edges  compact_MB  full_list_MB
+0        60   314666         1.5          41.4
+1        30   629313         1.6          82.7
+2        15  1258596         1.7         165.6
+3        10  1887963         1.8           NaN
+4         5  3775890         2.2           NaN
+(saved exp3b_memory.csv)
+
+
+(saved exp3b_memory.png)
+
+----- Experiment 4: scaling with the number of places ----
+    towns  seed  places  nodes    edges  timed_legs  network_s  nodes_settled  tour_s  B_own_h
+0      20     1      21   3024    32434           8       0.26           1003    0.01    28.52
+1      20     2      21   3024    32363           8       0.41           1000    0.01    28.52
+2      20     3      21   3024    32373          10       0.19           1022    0.01    28.52
+3      40     1      41   5904   122067          20       0.47           1473    0.01    34.23
+4      40     2      41   5904   122076          24       0.53           1443    0.01    32.58
+5      40     3      41   5904   122210          20       0.53           1638    0.01    32.86
+6      80     1      81  11664   472653          92       2.32           4710    0.11    52.52
+7      80     2      81  11664   472266          98       2.54           5360    0.07    54.11
+8      80     3      81  11664   472599          94       3.60           4263    0.05    53.56
+9     120     1     121  17424  1058483         128       5.22           7442    0.14    64.05
+10    120     2     121  17424  1055549         168       5.83           7015    0.19    61.45
+11    120     3     121  17424  1053827         196       5.63           6308    0.11    59.18
+12    161     1     162  23328  1887963         306      10.30           6997    0.17    63.18
+(saved exp4_scaling.csv)
+   places    nodes      edges  timed_legs  nodes_settled  tour_s
+0      21   3024.0    32373.0         8.0         1003.0    0.01
+1      41   5904.0   122076.0        20.0         1473.0    0.01
+2      81  11664.0   472599.0        94.0         4710.0    0.07
+3     121  17424.0  1055549.0       168.0         7015.0    0.14
+4     162  23328.0  1887963.0       306.0         6997.0    0.17
+(saved exp4_scaling.png)
+
+
+
+--- Experiment 5: how much of B is plain Nearest Neighbour --------------------------------
+
+153 of 161 steps are plain NN
+8 differ (state crossings or zone-driven)
+
+
+----- Experiment 6: if no zones, compared to simulator ----
+   start  baseline_h  baseline_unsafe  B_no_zones_h  B_no_zones_unsafe    B_h  B_unsafe
+0  06:00       67.61                3         58.74                  1  60.74         0
+1  08:00       67.61                3         58.74                  1  74.60         0
+2  18:00       67.61                3         58.74                  3  64.60         0
+(saved exp6_no_zones.csv)
+
+---- Experiment 7: change the danger hours ----
+           windows  start  B_own_h      highways  waits  unsafe
+0     real (mixed)  06:00    60.74    [R4, R185]      0       0
+1     real (mixed)  08:00    74.60  [R185, R185]      2       0
+2     real (mixed)  18:00    64.60  [R185, R185]      2       0
+3        all 19-07  06:00    60.74    [R4, R185]      0       0
+4        all 19-07  08:00    73.60  [R185, R185]      2       0
+5        all 19-07  18:00    63.60  [R185, R185]      2       0
+6  all 07-19 (day)  06:00    63.60  [R185, R185]      2       0
+7  all 07-19 (day)  08:00    61.60  [R185, R185]      2       0
+8  all 07-19 (day)  18:00    60.74    [R4, R185]      0       0
+(saved exp7_danger_hours.csv)
+
+All outputs saved to C:\Users\pehel\Documents\cs201-project\04_ApproachB\outputs\run_2026-11-07_1659

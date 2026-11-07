@@ -9,16 +9,16 @@ Each run saves CSVs, PNGs and run_log.txt in its own folder: ./outputs/run_<date
 # # Approach A: Time-Aware Nearest Neighbour with a Spatial Grid Index
 # **CS201 G2T4: Time-aware touring around elephant crossing zones (Perak and Kelantan)**
 # 
-# What this notebook does
-# 1. Loads towns (GeoNames `MY.txt`) and your four danger zones.
+# What this script does
+# 1. Loads the towns (from 01_data_prep, built from GeoNames `MY.txt`) and our 12 elephant-crossing zones.
 # 2. Builds a **grid index** over the zones.
 # 3. Builds each leg as a path, samples points along it, and uses the grid to find which zones the leg touches. That result is cached as `(zone, entry_km, exit_km)`.
 # 4. Runs **time-aware NN**: from the current town, for each unvisited town pick the cheapest of *direct*, *wait-then-direct* or *detour (Route 185)*, then go to the one with the **earliest arrival**.
 # 5. Compares against a classic NN baseline, checks safety with an **independent brute-force verifier**, and runs the experiments.
 # 
-# Modelling assumptions (all editable in the config cell)
-# - Same-region legs (Perak to Perak, Kelantan to Kelantan) are straight-line x 1.3 and never touch a zone.
-# - Cross-region legs use **Route 4** (through Z1 to Z4) or the **Route 185 detour** via Gua Musang (no zones). Gateways: Gerik (Perak side), Jeli (Kelantan side).
+# Modelling assumptions (all set in CFG below)
+# - Same-region legs (Perak to Perak, Kelantan to Kelantan) are straight-line x 1.3. They are zone-checked too, because zones Z8-Z12 lie on local roads.
+# - Cross-region legs use **Route 4** (Gerik <-> Kampung Jeli, zones Z1-Z5) or the **Route 185 detour** (Simpang Pulai <-> Gua Musang, zones Z6 and Z7).
 # - One speed for everything, zone hours repeat daily, waiting only at towns.
 
 
@@ -50,25 +50,27 @@ CFG = dict(
     DETOUR_FACTOR  = 1.3,    # haversine -> road km (off the corridor)
     SAMPLE_STEP_KM = 0.5,    # sampling spacing along a leg
     GRID_CELL_KM   = 5.0,
-    N_TOWNS        = 60,     # total towns, split between Perak and Kelantan
+    N_TOWNS        = 60,     # only used if run on MY.txt directly; with 01_data_prep all 161 towns are used
     START_NAME     = "Ipoh",
     START_HOUR     = 8.0,
     # --- Route 4 corridor (Gerik -> Jeli), measured on Google Maps ---
     CORRIDOR_TOTAL_KM = 126.0,
-    KM0_OFFSET_KM     = 0.0,   # distance from Gerik town to zone-table km 0. See the sanity-check cell.
-    # --- Route 185 detour (no zones), measured: Perak end -> Gua Musang ---
-    R185_MAIN_KM   = 217.0,
+    KM0_OFFSET_KM     = 0.0,   # distance from Gerik town to zone-table km 0. Section 3 checks this; 0 fits best.
+    # --- Route 185 detour (zones Z6, Z7 from zones.csv), measured: Perak end -> Gua Musang ---
+    R185_MAIN_KM   = 156.0,
 )
 
-# Gateway points (APPROXIMATE: overridden from your dataset if found, please verify)
+# Gateway points. Defaults only: gateways.csv (or the town data) overrides them when present.
 GATE = dict(
     GERIK=(5.4308, 101.1275),
     JELI=(5.7000, 101.8333),
-    CJ=(4.7800, 100.7800),      # Changkat Jering (Perak end of Route 185)
+    SP=(4.5310, 101.1271),      # Simpang Pulai (km 0 of Route 185, Perak end)
     GM=(4.8833, 101.9667),      # Gua Musang
 )
+# Point the Google Maps checks in Experiment 5 were measured from (Changkat Jering, NSE). Not a gateway.
+CHANGKAT_JERING = (4.7800, 100.7800)
 
-# Your zone table (times as H:MM)
+# Fallback zone table (the 4 news-backed zones), used only if zones.csv is missing. Times as H:MM.
 ZONE_ROWS = [
  ("Z1","KM11 near Kuala Rui",11,9,13,5.46596,101.17158,1,"19:00","7:00","3 reported incidents (Jan 2021, 23 Oct 2024, 20 May 2025)"),
  ("Z2","KM31 near Tasik Banding",31,29,33,5.53333,101.26245,1,"19:00","7:00","Motorcyclist collided with elephant ~9pm (10 Dec 2025)"),
@@ -98,7 +100,7 @@ else:
 # ---- roads and gateways (optional CSVs; otherwise the built-in values in CFG / GATE are used) ----
 ROADS_DIR = sys.argv[3] if len(sys.argv) > 3 else ZONES_DIR
 GATE_FROM_CSV = set()
-_GATE_KEYS = {"gerik": "GERIK", "kampung jeli": "JELI", "gua musang": "GM", "changkat jering": "CJ"}
+_GATE_KEYS = {"gerik": "GERIK", "kampung jeli": "JELI", "gua musang": "GM", "simpang pulai": "SP"}
 _gp, _rp = os.path.join(ROADS_DIR, "gateways.csv"), os.path.join(ROADS_DIR, "routes.csv")
 if os.path.exists(_gp):
     for _r in pd.read_csv(_gp, sep=None, engine="python").itertuples():
@@ -212,7 +214,7 @@ def sample_path(path, step):
 # 
 # Give the path to `MY.txt` or to the `01_data_prep` folder as the first argument. The script stops with an error if neither is found.
 # 
-# The Perak and Kelantan `admin1` codes are **auto-detected** from anchor towns (Ipoh, Kota Bharu) instead of being hard-coded, because the code in the brief should be double-checked. Verify the printout.
+# The Perak and Kelantan `admin1` codes are **auto-detected** from anchor towns (Ipoh, Kota Bharu) instead of being hard-coded, so a wrong code cannot silently select the wrong state. Only used in MY.txt mode; with 01_data_prep the state comes from towns.csv.
 
 
 GEO_COLS = ["geonameid","name","asciiname","alternatenames","lat","lon","fclass","fcode","cc","cc2",
@@ -250,7 +252,7 @@ if PREP_DIR:
 elif MY_PATH:
     raw = load_geonames(MY_PATH)
     pc, kc = code_of(raw, "Ipoh"), code_of(raw, "Kota Bharu")
-    print("Detected admin1 codes -> Perak:", pc, " Kelantan:", kc, "(verify against admin1CodesASCII.txt)")
+    print("Detected admin1 codes -> Perak:", pc, " Kelantan:", kc, "(expected Perak 07, Kelantan 03)")
     raw = raw[raw.admin1.isin([pc, kc])].copy()
     raw["region"] = np.where(raw.admin1 == pc, "P", "K")
     # override gateway coordinates from dataset where possible
@@ -275,7 +277,7 @@ display(towns.head())
 
 # ## 3. Corridor sanity check (km 0)
 # 
-# The zone table gives `road_km`, but not where km 0 is. This check puts the zones on a polyline from Gerik to Jeli and prints the implied **road km / straight-line km** for each stretch. A winding hill road should give roughly 1.2 to 1.7. A ratio far outside that means the km 0 assumption is wrong. Try `KM0_OFFSET_KM` = 0 and 12.5 and compare.
+# The zone table gives `road_km`, but not where km 0 is. This check puts the zones on a polyline from Gerik to Jeli and prints the implied **road km / straight-line km** for each stretch. A winding hill road should give roughly 1.2 to 1.7. A ratio far outside that means the km 0 assumption is wrong. We print both km 0 = Gerik (offset 0) and offset 12.5: offset 0 gives ratios of 1.26 to 1.77, while 12.5 gives 4.15 and 0.90, so we use 0.
 
 
 Z = zones_df.sort_values("road_km").reset_index(drop=True)
@@ -332,7 +334,7 @@ def earliest_safe(hits, D, zidx, speed, limit=20):
     return None
 
 def r4_path_east(p, k):
-    """Perak town p -> Gerik -> Z1..Z4 -> Jeli -> Kelantan town k.  p, k are (lat, lon)."""
+    """Perak town p -> Gerik -> Route 4 zones -> Jeli -> Kelantan town k.  p, k are (lat, lon)."""
     ks = corridor_knots(CFG["KM0_OFFSET_KM"]); base = est(p, GATE["GERIK"])
     lats = [p[0]] + [q[0] for q in ks] + [k[0]]
     lons = [p[1]] + [q[1] for q in ks] + [k[1]]
@@ -340,10 +342,10 @@ def r4_path_east(p, k):
     return _fix(lats, lons, cum)
 
 def r185_path_east(p, k):
-    """Perak town p -> Changkat Jering -> Route 185 zones -> Gua Musang -> Kelantan town k."""
-    ks = route_knots("R185"); c1 = est(p, GATE["CJ"]); c2 = c1 + CFG["R185_MAIN_KM"]
-    lats = [p[0], GATE["CJ"][0]] + [q[0] for q in ks] + [GATE["GM"][0], k[0]]
-    lons = [p[1], GATE["CJ"][1]] + [q[1] for q in ks] + [GATE["GM"][1], k[1]]
+    """Perak town p -> Simpang Pulai -> Route 185 zones -> Gua Musang -> Kelantan town k."""
+    ks = route_knots("R185"); c1 = est(p, GATE["SP"]); c2 = c1 + CFG["R185_MAIN_KM"]
+    lats = [p[0], GATE["SP"][0]] + [q[0] for q in ks] + [GATE["GM"][0], k[0]]
+    lons = [p[1], GATE["SP"][1]] + [q[1] for q in ks] + [GATE["GM"][1], k[1]]
     cum = [0.0, c1] + [c1 + q[2] for q in ks] + [c2, c2 + est(GATE["GM"], k)]
     return _fix(lats, lons, cum)
 
@@ -559,7 +561,7 @@ print(f"Default road: {'Route 4' if _k4 <= _k5 else 'Route 185'}. The other road
 
 
 # ## Experiment 4: Grid vs brute force (justifies the data structure)
-# Your real dataset only has 4 zones, so the grid will show little benefit there. We therefore also test **synthetic extra zones** (random, same hours). Both methods use the same samples, and the check below confirms they return identical hits.
+# The real dataset only has 12 zones (108 zone points), so the grid will show little benefit there. We therefore also test **synthetic extra zones** (random, same hours). Both methods use the same samples, and the check below confirms they return identical hits.
 
 
 def synth(m, seed=0):
@@ -575,15 +577,15 @@ samples = [sample_path(W.path(i, j, "R4"), CFG["SAMPLE_STEP_KM"]) for i, j in pa
 pad = CFG["SAMPLE_STEP_KM"]
 
 rows = []
-for m in (4, 50, 500, 5000):
-    zx, zy, zr, dz, a_s, a_e = synth(m) if m > 4 else (W.zidx.zx, W.zidx.zy, W.zidx.zr, W.zidx.dzone, W.zidx.a_s, W.zidx.a_e)
+for m in ("real", 50, 500, 5000):
+    zx, zy, zr, dz, a_s, a_e = synth(m) if m != "real" else (W.zidx.zx, W.zidx.zy, W.zidx.zr, W.zidx.dzone, W.zidx.a_s, W.zidx.a_e)
     tracemalloc.start(); t = time.perf_counter()
     idx = ZoneIndex(zx, zy, zr, dz, a_s, a_e, CFG["GRID_CELL_KM"])
     build = time.perf_counter()-t; peak = tracemalloc.get_traced_memory()[1]; tracemalloc.stop()
     t = time.perf_counter(); g = [idx.hits_grid(s, x, y, pad) for s, x, y in samples]; tg = time.perf_counter()-t
     t = time.perf_counter(); b = [idx.hits_brute(s, x, y, pad) for s, x, y in samples]; tb = time.perf_counter()-t
     same = all([(z, round(a, 6), round(c, 6)) for z, a, c in u] == [(z, round(a, 6), round(c, 6)) for z, a, c in v] for u, v in zip(g, b))
-    rows.append(dict(zones=m, discs=len(zx), grid_ms=round(tg*1000, 1), brute_ms=round(tb*1000, 1), speedup=round(tb/tg, 2),
+    rows.append(dict(zones=f"{len(set(dz))} (real)" if m == "real" else m, discs=len(zx), grid_ms=round(tg*1000, 1), brute_ms=round(tb*1000, 1), speedup=round(tb/tg, 2),
                      grid_build_ms=round(build*1000, 1), grid_peak_KB=round(peak/1024, 1), identical_results=same))
 scal = pd.DataFrame(rows); display(scal); scal.to_csv(os.path.join(OUT_DIR, "exp4_grid_scaling.csv"), index=False)
 
@@ -599,11 +601,11 @@ display(pd.DataFrame(rows))
 
 
 # ## Experiment 5: Does the model match Google Maps?
-# Your measured numbers: Bachok to the Changkat Jering end of Perak is **344 km** via Route 4 and **410 km** via Route 185, and Gua Musang to Bachok is **193 km**. This checks how far the gateway model is off, per leg.
+# Our Google Maps measurements: Bachok to Changkat Jering (Perak) is **344 km** via Route 4 and **410 km** via Route 185, and Gua Musang to Bachok is **193 km**. This checks how far our gateway model is off, per leg.
 
 
 bach = next(((r.lat, r.lon) for r in towns.itertuples() if r.town == "Bachok"), (6.0667, 102.4))
-p = GATE["CJ"]
+p = CHANGKAT_JERING      # the Google figures above were measured from here; the model now enters Route 185 at Simpang Pulai
 m4 = float(r4_path_east(p, bach)[2][-1]); m5 = float(r185_path_east(p, bach)[2][-1]); gm = est(GATE["GM"], bach)
 chk = pd.DataFrame([
     dict(quantity="Bachok <-> Changkat Jering via Route 4", model_km=round(m4, 1), google_km=344),

@@ -14,8 +14,9 @@ SAMPLE_KM = 0.5
 EARTH_RADIUS_KM = 6371.0
 DETOUR_FACTOR = 1.3
 CORRIDOR_TOTAL_KM = 126.0
-R185_MAIN_KM = 217.0
-CHANGKAT_JERING, GUA_MUSANG = (4.78, 100.78), (4.8833, 101.9667)
+R185_MAIN_KM = 156.0
+# Route 185 ends (lat, lon). Defaults below; load() replaces them from gateways.csv / routes.csv.
+R185_WEST, R185_EAST = (4.531, 101.1271), (4.88441, 101.96857)   # Simpang Pulai (km 0), Gua Musang
 
 towns, dist, zones, idx, ROUTE4 = [], [], [], {}, []
 ROUTE185 = []   # R185 zone points (lat, lon, km from the Perak end), used as extra knots of the detour
@@ -40,7 +41,19 @@ def _ll(t):
 def load(in_dir, zones_dir, start_town="Ipoh", speed_kmh=None, corridor_total_km=None, r185_main_km=None):
     """Load towns.csv + distances_km.csv from in_dir and zones.csv + zone_points.csv from zones_dir."""
     global towns, dist, zones, idx, ROUTE4, n, start, GERIK, JELI
-    global SPEED_KMH, CORRIDOR_TOTAL_KM, R185_MAIN_KM
+    global SPEED_KMH, CORRIDOR_TOTAL_KM, R185_MAIN_KM, R185_WEST, R185_EAST
+    # route lengths and Route 185 end points from routes.csv / gateways.csv (if present)
+    routes_csv, gates_csv = os.path.join(zones_dir, "routes.csv"), os.path.join(zones_dir, "gateways.csv")
+    if os.path.exists(routes_csv) and os.path.exists(gates_csv):
+        with open(gates_csv, encoding="utf-8") as f:
+            gate = {r["name"]: (float(r["lat"]), float(r["lon"])) for r in csv.DictReader(f)}
+        with open(routes_csv, encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                if r["route_id"] == "R4":
+                    CORRIDOR_TOTAL_KM = float(r["length_km"])
+                elif r["route_id"] == "R185":
+                    R185_MAIN_KM = float(r["length_km"])
+                    R185_WEST, R185_EAST = gate[r["gateway_a"]], gate[r["gateway_b"]]
     if speed_kmh is not None: SPEED_KMH = speed_kmh
     if corridor_total_km is not None: CORRIDOR_TOTAL_KM = corridor_total_km
     if r185_main_km is not None: R185_MAIN_KM = r185_main_km
@@ -109,10 +122,10 @@ def road_path(i, j, route="R4"):
         start_km = road_km(_ll(a), GERIK)
         path = [(a["lat"], a["lon"], 0.0)] + [(lat, lon, start_km + km) for lat, lon, km in ROUTE4]
     else:                                              # Route 185 detour
-        k1 = road_km(_ll(a), CHANGKAT_JERING)
-        path = ([(a["lat"], a["lon"], 0.0), (*CHANGKAT_JERING, k1)]
+        k1 = road_km(_ll(a), R185_WEST)
+        path = ([(a["lat"], a["lon"], 0.0), (*R185_WEST, k1)]
                 + [(lat, lon, k1 + km) for lat, lon, km in ROUTE185]
-                + [(*GUA_MUSANG, k1 + R185_MAIN_KM)])
+                + [(*R185_EAST, k1 + R185_MAIN_KM)])
     last = path[-1]
     return path + [(b["lat"], b["lon"], last[2] + road_km(last[:2], _ll(b)))]
 

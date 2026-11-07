@@ -4,8 +4,8 @@ Z2,KM31 near Tasik Banding,31,29.0,33.0,5.53333,101.26245,1.0,19:00,07:00,Motorc
 Z3,KM50,50,48.0,52.0,5.56473,101.36287,1.0,19:00,07:00,Calf killed by SUV while crossing (Apr 2024),R4,news
 Z4,KM80,80,78.0,82.0,5.59922,101.5784,1.0,19:00,07:00,Calf killed by lorry ~2:50am (11 May 2025),R4,news
 Z5,"Route 4 KM92 (Jeli side, Kelantan)",92,89.9,93.9,5.65397,101.63181,1.0,19:00,07:00,SYNTHETIC: Continues the Belum-Temengor forest corridor east of Z4; same night window as Z1-Z4,R4,synthetic
-Z6,Route 185 east of Hendrop,156,153.8,157.8,4.75183,101.59485,1.0,18:30,06:30,SYNTHETIC: Highland forest stretch between Hendrop and Kuala Betis; makes the Route 185 detour not automatically safe,R185,synthetic
-Z7,Route 185 near Kuala Betis,197,195.5,199.5,4.89715,101.83434,1.0,20:00,08:00,SYNTHETIC: Forest edge west of Gua Musang; window shifted later to model early-morning crossings,R185,synthetic
+Z6,Route 185 east of Hendrop,95,92.7,96.7,4.75183,101.59485,1.0,18:30,06:30,SYNTHETIC: Highland forest stretch between Hendrop and Kuala Betis; makes the Route 185 detour not automatically safe,R185,synthetic
+Z7,Route 185 near Kuala Betis,137,134.6,138.6,4.89715,101.83434,1.0,20:00,08:00,SYNTHETIC: Forest edge west of Gua Musang; window shifted later to model early-morning crossings,R185,synthetic
 Z8,Gerik-Lenggong road near Kenering,26,24.4,28.4,5.26771,101.05393,1.0,18:00,06:00,"SYNTHETIC: Route 76 past Tasik Kenering / Belum Baharu, beside the same Perak forest block as Route 4",LOCAL,synthetic
 Z9,Gerik-Pengkalan Hulu road,14,12.2,16.2,5.50667,101.09333,0.5,21:00,05:00,"SYNTHETIC: Forested road north of Gerik toward the Thai border; narrow late-night window, tight buffer",LOCAL,synthetic
 Z10,Route 8 near Limau Kasturi,31,28.5,32.5,5.0817,102.04431,1.5,17:00,23:00,SYNTHETIC: Plantation-forest edge on the Gua Musang-Kuala Krai road; dusk peak (elephants raid crops at dusk),LOCAL,synthetic

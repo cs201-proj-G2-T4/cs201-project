@@ -143,7 +143,6 @@ class Network:
         name(list): place number -> place name
         n_towns: places 0 .. n_towns-1 are towns, the rest are junctions
         legs(dict): place number -> list of Leg leaving that place
-        zones_on_route(dict): route_id -> list of zones that lie on that highway ([] for a zone-free road)
     """
     def __init__(self, towns, dist_km, routes, gateways, zones, speed=SPEED_KMH):
         self.speed, self.n_towns = speed, len(towns)
@@ -168,16 +167,11 @@ class Network:
                 km = float(dist_km[i, j]) if are_both_towns else sim.haversine_km(*coords(i), *coords(j)) * DETOUR_FACTOR
                 spans = zone_spans([(*coords(i), 0.0), (*coords(j), km)], km, zones)
                 self.legs[i].append(Leg(to=j, road="local", km=km, spans=spans))
-
-        zones_on_route = {r.route_id: [] for r in routes.itertuples()}
-        for zone in zones:
-            if zone.get("route") in zones_on_route:
-                zones_on_route[zone["route"]].append(zone)
-        self.zones_on_route = zones_on_route
             
         for r in routes.itertuples():
             L, gateway_a, gateway_b = float(r.length_km), idx[r.gateway_a], idx[r.gateway_b]
-            pts = sorted((p for z in zones_on_route[r.route_id] for p in z["points"]), key=lambda p: p[2])
+            pts = sorted((p for z in zones if z.get("route") == r.route_id for p in z["points"]),
+                         key=lambda p: p[2])
             geom = [(*coords(gateway_a), 0.0)] + pts + [(*coords(gateway_b), L)] # start gateway, all the points (of danger zones on this highway/route), end gateway
             spans = zone_spans(geom, L, zones)
 
@@ -256,7 +250,8 @@ class TimedEdge(NamedTuple):
 
 class TimeExpandedGraph:
     def __init__(self, net, slot_min=SLOT_MIN):
-        self.net, self.slot = net, slot_min
+        self.net = net
+        self.slot = slot_min
         self.num_daily_slots = MIN_PER_DAY // slot_min
 
         # function to calculate how many slots that drive takes
@@ -552,7 +547,7 @@ plt.show()
 
 # ---- Experiment 2b: what if the detour road had no zones? ----
 DETOUR_ROUTE = "R185"
-detour_zones = {z["id"] for z in net.zones_on_route[DETOUR_ROUTE]}       # {"Z6", "Z7"}, read from the data
+detour_zones = {z["id"] for z in zones if z.get("route") == DETOUR_ROUTE}      # {"Z6", "Z7"}, read from the data
 
 no_detour_zone_net = edit_spans(net, lambda s: None if s.zone_id in detour_zones else s)
 exp2_detour = departure_sweep(TimeExpandedGraph(no_detour_zone_net), frm, to)

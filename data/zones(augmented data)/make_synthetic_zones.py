@@ -12,7 +12,8 @@ plausible zones. Each one is clearly marked evidence_type=synthetic and is place
   * spread over 4 road types: Route 4 (Kelantan side), the Route 185 detour, Perak local roads, Kelantan local roads.
 
 Geometry rules (same as Z1-Z4: 9 points, 0.5 road-km apart, 4 road-km long):
-  * R4 / R185 zones: points lie on our approximation of the real highway, road_km = km from the Perak end.
+  * R4 / R185 zones: points lie on our approximation of the real highway, road_km = km from the Perak end
+    (Gerik for Route 4, Simpang Pulai for Route 185).
     The scripts use these points as extra knots of that highway's path.
   * LOCAL zones: local legs are modelled as straight lines between two towns (length = haversine x 1.3),
     so the points lie on the straight segment town_a -> town_b, centred at the point nearest the named
@@ -44,15 +45,24 @@ Z4_END = (5.60206, 101.59249)                  # last point of Z4 (KM82), from z
 KUALA_BETIS = (4.9014, 101.7896)               # GeoNames 'Kampung Kuala Betis'
 GUA_MUSANG = T["Gua Musang"]
 
+# Route 185 zones are positioned by road km from Simpang Pulai (km 0 of Route 185).
+# The road length comes from routes.csv; Kuala Betis and Hendrop are placed by working back from Gua Musang.
+def r185_length():
+    with open(os.path.join(HERE, "routes.csv"), encoding="utf-8") as f:
+        return next(float(r["length_km"]) for r in csv.DictReader(f) if r["route_id"] == "R185")
+
+KUALA_BETIS_KM = r185_length() - hav(KUALA_BETIS, GUA_MUSANG) * DETOUR
+HENDROP_KM = KUALA_BETIS_KM - hav(T["Hendrop"], KUALA_BETIS) * DETOUR
+
 # Each zone: a straight segment A->B that the road (or modelled leg) follows near the zone,
 # the road km at A, the scale road_km/geo_km on that segment, and the zone centre as a fraction of A->B.
 ZONES = [
     # id, name, route, A, B, road_km_at_A, scale, centre_frac, buffer, start, end, rationale
     ("Z5", "Route 4 KM92 (Jeli side, Kelantan)", "R4", Z4_END, T["Kampong Delong"], 82.0, 1.37, 0.53, 1.0, "19:00", "07:00",
      "Continues the Belum-Temengor forest corridor east of Z4; same night window as Z1-Z4"),
-    ("Z6", "Route 185 east of Hendrop", "R185", T["Hendrop"], KUALA_BETIS, 148.0, 1.3, 0.18, 1.0, "18:30", "06:30",
+    ("Z6", "Route 185 east of Hendrop", "R185", T["Hendrop"], KUALA_BETIS, HENDROP_KM, 1.3, 0.18, 1.0, "18:30", "06:30",
      "Highland forest stretch between Hendrop and Kuala Betis; makes the Route 185 detour not automatically safe"),
-    ("Z7", "Route 185 near Kuala Betis", "R185", KUALA_BETIS, GUA_MUSANG, 191.0, 1.3, 0.25, 1.0, "20:00", "08:00",
+    ("Z7", "Route 185 near Kuala Betis", "R185", KUALA_BETIS, GUA_MUSANG, KUALA_BETIS_KM, 1.3, 0.25, 1.0, "20:00", "08:00",
      "Forest edge west of Gua Musang; window shifted later to model early-morning crossings"),
     ("Z8", "Gerik-Lenggong road near Kenering", "LOCAL", T["Lenggong"], T["Gerik"], 0.0, DETOUR, 0.52, 1.0, "18:00", "06:00",
      "Route 76 past Tasik Kenering / Belum Baharu, beside the same Perak forest block as Route 4"),

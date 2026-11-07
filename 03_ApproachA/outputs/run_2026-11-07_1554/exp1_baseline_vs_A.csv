@@ -1,0 +1,13 @@
+start,method,total_h,wait_h,n_waits,n_detours,detour_extra_km,total_km,unsafe_legs,unsafe_samples
+06:00,Baseline NN (ignores zones),58.74,0.0,0,0,0.0,3524.2,1,27
+06:00,A: wait only,60.74,0.0,0,0,0.0,3644.3,0,0
+06:00,A: detour only,60.74,0.0,0,0,0.0,3644.3,0,0
+06:00,A: wait + detour,60.74,0.0,0,0,0.0,3644.3,0,0
+08:00,Baseline NN (ignores zones),58.74,0.0,0,0,0.0,3524.2,1,27
+08:00,A: wait only,74.52,13.78,2,0,0.0,3644.3,0,0
+08:00,A: detour only,74.52,10.55,2,2,41.4,3838.1,0,0
+08:00,A: wait + detour,74.52,10.55,2,2,41.4,3838.1,0,0
+18:00,Baseline NN (ignores zones),58.74,0.0,0,0,0.0,3524.2,3,339
+18:00,A: wait only,64.62,4.43,2,0,0.0,3611.3,0,0
+18:00,A: detour only,64.52,3.99,2,1,20.6,3631.9,0,0
+18:00,A: wait + detour,64.52,3.99,2,1,20.6,3631.9,0,0

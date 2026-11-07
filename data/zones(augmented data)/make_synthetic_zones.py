@@ -1,23 +1,22 @@
 """
-Adds 8 SYNTHETIC elephant-crossing danger zones (Z5-Z12) to the 4 news-backed zones (Z1-Z4).
+Adds our 8 made-up (synthetic) elephant zones, Z5-Z12, to the 4 zones from the news, Z1-Z4.
 
 Run from the repo root:   python "data/zones(augmented data)/make_synthetic_zones.py"
-It rewrites zones.csv, zone_points.csv and zone_sources.csv in this folder. Z1-Z4 rows are kept as they are.
+It rewrites zones.csv, zone_points.csv and zone_sources.csv. Z1-Z4 are kept as they are.
 
-Why synthetic: only 4 zones could be backed by news reports. With course approval we added 8 more
-plausible zones. Each one is clearly marked evidence_type=synthetic and is placed
-  * next to a forest reserve listed in GeoNames MY.txt (nearest one is recorded in zone_sources.csv),
-  * on a road segment the simulator actually drives (so the zone can change a tour),
-  * away from every selected town (no town sits inside a zone),
-  * spread over 4 road types: Route 4 (Kelantan side), the Route 185 detour, Perak local roads, Kelantan local roads.
+Why: we could only find news reports for 4 zones, so (with course approval) we added 8 more.
+They're all marked evidence_type=synthetic in zones.csv. We put each one:
+  - next to a forest reserve from MY.txt (the closest one is saved in zone_sources.csv)
+  - on a road our tours actually use, so it can change a tour
+  - away from all our towns, so no town is inside a zone
+  - across 4 kinds of road: Route 4 (Kelantan side), Route 185, Perak local roads, Kelantan local roads
 
-Geometry rules (same as Z1-Z4: 9 points, 0.5 road-km apart, 4 road-km long):
-  * R4 / R185 zones: points lie on our approximation of the real highway, road_km = km from the Perak end
+Shape: same as Z1-Z4, 9 points 0.5 km apart, so each zone is 4 km of road.
+  - Route 4 / Route 185 zones sit on the highway. road_km is km from the Perak end
     (Gerik for Route 4, Simpang Pulai for Route 185).
-    The scripts use these points as extra knots of that highway's path.
-  * LOCAL zones: local legs are modelled as straight lines between two towns (length = haversine x 1.3),
-    so the points lie on the straight segment town_a -> town_b, centred at the point nearest the named
-    place. road_km = km along that modelled leg from town_a.
+  - Local zones: local legs are straight lines between two towns (straight line x 1.3),
+    so the points sit on that line, near the place in the zone's name.
+    road_km is km along that leg from the first town.
 """
 import csv, math, os
 
@@ -45,8 +44,8 @@ Z4_END = (5.60206, 101.59249)                  # last point of Z4 (KM82), from z
 KUALA_BETIS = (4.9014, 101.7896)               # GeoNames 'Kampung Kuala Betis'
 GUA_MUSANG = T["Gua Musang"]
 
-# Route 185 zones are positioned by road km from Simpang Pulai (km 0 of Route 185).
-# The road length comes from routes.csv; Kuala Betis and Hendrop are placed by working back from Gua Musang.
+# Route 185 zones use km from Simpang Pulai. We take the length from routes.csv and work
+# backwards from Gua Musang to get the km of Kuala Betis and Hendrop.
 def r185_length():
     with open(os.path.join(HERE, "routes.csv"), encoding="utf-8") as f:
         return next(float(r["length_km"]) for r in csv.DictReader(f) if r["route_id"] == "R185")
@@ -54,8 +53,8 @@ def r185_length():
 KUALA_BETIS_KM = r185_length() - hav(KUALA_BETIS, GUA_MUSANG) * DETOUR
 HENDROP_KM = KUALA_BETIS_KM - hav(T["Hendrop"], KUALA_BETIS) * DETOUR
 
-# Each zone: a straight segment A->B that the road (or modelled leg) follows near the zone,
-# the road km at A, the scale road_km/geo_km on that segment, and the zone centre as a fraction of A->B.
+# For each zone: the straight bit of road A->B it sits on, the road km at A,
+# road km / straight line km on that bit, and how far along A->B the zone's centre is.
 ZONES = [
     # id, name, route, A, B, road_km_at_A, scale, centre_frac, buffer, start, end, rationale
     ("Z5", "Route 4 KM92 (Jeli side, Kelantan)", "R4", Z4_END, T["Kampong Delong"], 82.0, 1.37, 0.53, 1.0, "19:00", "07:00",

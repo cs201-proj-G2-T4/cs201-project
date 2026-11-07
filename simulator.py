@@ -1,7 +1,7 @@
-"""Team simulator + baseline, from the 02_baseline_simulator notebook, as an importable module.
+"""Our team simulator and the baseline (moved out of the 02_baseline_simulator notebook).
 
-The logic is the notebook's (zone_active, km_to_zone, check_leg, leg_is_safe, simulate, nearest_neighbour).
-The only change: loading the data is wrapped in load(), so Approach A / Approach B can do
+Approach A, Approach B and the baseline all get checked with this same code, so the results are fair.
+How to use it:
     import simulator as sim
     sim.load("01_data_prep", "data/zones(augmented data)")
     sim.simulate(tour, start_min, waits, routes)
@@ -15,11 +15,11 @@ EARTH_RADIUS_KM = 6371.0
 DETOUR_FACTOR = 1.3
 CORRIDOR_TOTAL_KM = 126.0
 R185_MAIN_KM = 156.0
-# Route 185 ends (lat, lon). Defaults below; load() replaces them from gateways.csv / routes.csv.
+# Both ends of Route 185. load() replaces these with the values in gateways.csv / routes.csv
 R185_WEST, R185_EAST = (4.531, 101.1271), (4.88441, 101.96857)   # Simpang Pulai (km 0), Gua Musang
 
 towns, dist, zones, idx, ROUTE4 = [], [], [], {}, []
-ROUTE185 = []   # R185 zone points (lat, lon, km from the Perak end), used as extra knots of the detour
+ROUTE185 = []   # zone points on Route 185 as (lat, lon, km from Simpang Pulai), used to draw the detour's path
 n, start, GERIK, JELI = 0, 0, None, None
 
 
@@ -39,10 +39,10 @@ def _ll(t):
 
 
 def load(in_dir, zones_dir, start_town="Ipoh", speed_kmh=None, corridor_total_km=None, r185_main_km=None):
-    """Load towns.csv + distances_km.csv from in_dir and zones.csv + zone_points.csv from zones_dir."""
+    """Read the towns and distances (in_dir) and the zones, gateways and routes (zones_dir)."""
     global towns, dist, zones, idx, ROUTE4, n, start, GERIK, JELI
     global SPEED_KMH, CORRIDOR_TOTAL_KM, R185_MAIN_KM, R185_WEST, R185_EAST
-    # route lengths and Route 185 end points from routes.csv / gateways.csv (if present)
+    # highway lengths and the Route 185 ends, if the CSVs are there
     routes_csv, gates_csv = os.path.join(zones_dir, "routes.csv"), os.path.join(zones_dir, "gateways.csv")
     if os.path.exists(routes_csv) and os.path.exists(gates_csv):
         with open(gates_csv, encoding="utf-8") as f:

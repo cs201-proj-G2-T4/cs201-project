@@ -1,0 +1,41 @@
+approach,start_town,start_hour,total_h,wait_h,total_km,R4_legs,R185_legs,unsafe_legs,tour_ms,tour_peak_MB
+A: time-aware NN + grid index,Ipoh,00:00,58.74,0.0,3524.2,0,2,0,154.6,0.09
+B: time-expanded graph + Dijkstra,Ipoh,00:00,58.74,0.0,3524.2,0,2,0,136.7,1.45
+A: time-aware NN + grid index,Ipoh,06:00,60.74,0.0,3644.3,1,1,0,148.6,0.09
+B: time-expanded graph + Dijkstra,Ipoh,06:00,60.74,0.0,3644.3,1,1,0,115.6,1.18
+A: time-aware NN + grid index,Ipoh,08:00,74.52,10.55,3838.1,0,2,0,158.9,0.09
+B: time-expanded graph + Dijkstra,Ipoh,08:00,74.6,10.63,3838.1,0,2,0,354.3,3.72
+A: time-aware NN + grid index,Ipoh,12:00,70.52,6.55,3838.1,0,2,0,166.7,0.09
+B: time-expanded graph + Dijkstra,Ipoh,12:00,70.6,6.63,3838.1,0,2,0,284.0,3.6
+A: time-aware NN + grid index,Ipoh,18:00,64.52,3.99,3631.9,0,2,0,176.4,0.09
+B: time-expanded graph + Dijkstra,Ipoh,18:00,64.6,4.07,3631.9,0,2,0,218.4,3.6
+A: time-aware NN + grid index,Kota Bharu,00:00,69.19,8.18,3660.4,1,1,0,175.4,0.09
+B: time-expanded graph + Dijkstra,Kota Bharu,00:00,69.18,8.17,3660.4,1,1,0,306.0,3.56
+A: time-aware NN + grid index,Kota Bharu,06:00,63.19,2.96,3613.7,1,1,0,145.5,0.09
+B: time-expanded graph + Dijkstra,Kota Bharu,06:00,63.18,2.11,3664.5,1,1,0,196.0,3.56
+A: time-aware NN + grid index,Kota Bharu,08:00,61.19,0.18,3660.4,1,1,0,166.5,0.09
+B: time-expanded graph + Dijkstra,Kota Bharu,08:00,61.18,0.17,3660.4,1,1,0,225.0,3.56
+A: time-aware NN + grid index,Kota Bharu,12:00,70.42,9.43,3659.1,2,0,0,189.7,0.09
+B: time-expanded graph + Dijkstra,Kota Bharu,12:00,70.52,9.53,3659.1,2,0,0,362.9,5.02
+A: time-aware NN + grid index,Kota Bharu,18:00,64.42,4.85,3573.9,2,0,0,189.6,0.09
+B: time-expanded graph + Dijkstra,Kota Bharu,18:00,64.52,4.95,3573.9,2,0,0,254.9,4.0
+A: time-aware NN + grid index,Gerik,00:00,57.11,0.0,3426.5,1,1,0,160.8,0.09
+B: time-expanded graph + Dijkstra,Gerik,00:00,57.11,0.0,3426.5,1,1,0,110.9,1.45
+A: time-aware NN + grid index,Gerik,06:00,57.09,0.0,3425.2,1,1,0,150.0,0.09
+B: time-expanded graph + Dijkstra,Gerik,06:00,57.09,0.0,3425.2,1,1,0,109.8,1.45
+A: time-aware NN + grid index,Gerik,08:00,57.09,0.0,3425.2,1,1,0,162.1,0.09
+B: time-expanded graph + Dijkstra,Gerik,08:00,57.09,0.0,3425.2,1,1,0,111.8,1.48
+A: time-aware NN + grid index,Gerik,12:00,68.61,11.81,3408.0,1,1,0,182.2,0.09
+B: time-expanded graph + Dijkstra,Gerik,12:00,68.6,11.8,3408.0,1,1,0,289.9,3.6
+A: time-aware NN + grid index,Gerik,18:00,62.61,5.79,3409.3,1,1,0,177.9,0.09
+B: time-expanded graph + Dijkstra,Gerik,18:00,62.6,5.78,3409.3,1,1,0,192.0,2.99
+A: time-aware NN + grid index,Kampung Jeli,00:00,68.13,8.32,3588.4,1,1,0,166.4,0.09
+B: time-expanded graph + Dijkstra,Kampung Jeli,00:00,68.12,7.46,3639.6,1,1,0,222.5,2.94
+A: time-aware NN + grid index,Kampung Jeli,06:00,62.12,1.53,3635.5,1,1,0,162.6,0.09
+B: time-expanded graph + Dijkstra,Kampung Jeli,06:00,62.12,1.52,3635.5,1,1,0,182.8,2.94
+A: time-aware NN + grid index,Kampung Jeli,08:00,60.59,0.0,3635.5,1,1,0,191.5,0.09
+B: time-expanded graph + Dijkstra,Kampung Jeli,08:00,60.59,0.0,3635.5,1,1,0,215.2,2.93
+A: time-aware NN + grid index,Kampung Jeli,12:00,69.58,9.68,3593.8,1,1,0,207.0,0.09
+B: time-expanded graph + Dijkstra,Kampung Jeli,12:00,69.1,8.78,3619.2,1,1,0,269.1,3.29
+A: time-aware NN + grid index,Kampung Jeli,18:00,63.0,1.74,3675.6,1,1,0,200.3,0.09
+B: time-expanded graph + Dijkstra,Kampung Jeli,18:00,63.1,1.84,3675.6,1,1,0,185.0,2.89

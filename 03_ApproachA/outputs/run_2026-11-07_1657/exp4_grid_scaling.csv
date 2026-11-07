@@ -1,0 +1,5 @@
+zones,discs,grid_ms,brute_ms,speedup,grid_build_ms,grid_peak_KB,identical_results
+12 (real),108,43.7,21.9,0.5,2.7,8.1,True
+50,50,7.9,22.4,2.83,1.8,28.5,True
+500,500,40.4,433.0,10.71,21.7,199.0,True
+5000,5000,277.4,6246.8,22.52,162.2,688.2,True

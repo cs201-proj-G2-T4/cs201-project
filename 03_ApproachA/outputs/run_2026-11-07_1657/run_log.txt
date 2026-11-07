@@ -1,8 +1,8 @@
-Run folder: /home/claude/cs201-proj-g2-t4/cs201-project/03_ApproachA/outputs/run_2026-11-07_1554
-Loaded 12 zones from data/zones(augmented data)/zones.csv
-Loaded 108 road points from data/zones(augmented data)/zone_points.csv
-Gateways read from data/zones(augmented data)/gateways.csv -> ['GERIK', 'GM', 'JELI', 'SP']
-Route lengths read from data/zones(augmented data)/routes.csv -> R4: 126.0 km, R185: 156.0 km
+Run folder: C:\Users\pehel\Documents\cs201-project\03_ApproachA\outputs\run_2026-11-07_1657
+Loaded 12 zones from data/zones(augmented data)\zones.csv
+Loaded 108 road points from data/zones(augmented data)\zone_points.csv
+Gateways read from data/zones(augmented data)\gateways.csv -> ['GERIK', 'GM', 'JELI', 'SP']
+Route lengths read from data/zones(augmented data)\routes.csv -> R4: 126.0 km, R185: 156.0 km
    zone_id  road_km  center_lat  center_lon  radius_road_km   a_s   a_e
 0       Z1       11     5.46596   101.17158             3.0  1140   420
 1       Z2       31     5.53333   101.26245             3.0  1140   420
@@ -57,18 +57,18 @@ start: Ipoh | towns: 161 | corridor winding ratio: 1.41 | zone discs in grid: 10
 11  18:00             A: wait + detour    64.52    3.99        2          1             20.6    3631.9            0               0
 Default road: Route 4. The other road costs 18 km more (+18 min at 60 km/h). The detour wins whenever the wait is longer than that.
        zones  discs  grid_ms  brute_ms  speedup  grid_build_ms  grid_peak_KB  identical_results
-0  12 (real)    108     48.7      26.5     0.54            3.9           8.2               True
-1         50     50      9.5      20.3     2.14            2.5          28.5               True
-2        500    500     39.6     238.7     6.03           22.7         203.4               True
-3       5000   5000    290.4    2611.7     8.99          227.9         688.2               True
+0  12 (real)    108     43.7      21.9     0.50            2.7           8.1               True
+1         50     50      7.9      22.4     2.83            1.8          28.5               True
+2        500    500     40.4     433.0    10.71           21.7         199.0               True
+3       5000   5000    277.4    6246.8    22.52          162.2         688.2               True
 Cell-size sweep (500 synthetic zones):
    cell_km  occupied_cells  avg_zones_per_cell  build_ms  query_ms  peak_KB
-0        1           10986                1.14     102.2      30.8   2198.4
-1        2            3764                1.20      47.3      27.7    670.5
-2        5            1138                1.42      24.4      40.3    203.4
-3       10             440                2.26      18.4      80.2     90.5
-4       20             142                5.25      15.2     203.8     39.4
-5       50              30               19.43      13.6     807.0     23.9
+0        1           10986                1.14      71.9      81.9   2198.4
+1        2            3764                1.20      32.3      39.1    670.5
+2        5            1138                1.42      16.5      40.3    203.4
+3       10             440                2.26      12.7      74.3     90.5
+4       20             142                5.25      10.7     191.9     39.4
+5       50              30               19.43       9.7     762.5     23.9
                                    quantity  model_km  google_km  error_pct
 0    Bachok <-> Changkat Jering via Route 4     328.4        344       -4.5
 1  Bachok <-> Changkat Jering via Route 185     399.4        410       -2.6

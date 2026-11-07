@@ -9,16 +9,16 @@ Each run saves CSVs, PNGs and run_log.txt in its own folder: ./outputs/run_<date
 # # Approach A: Time-Aware Nearest Neighbour with a Spatial Grid Index
 # **CS201 G2T4: Time-aware touring around elephant crossing zones (Perak and Kelantan)**
 # 
-# What this notebook does
-# 1. Loads towns (GeoNames `MY.txt`) and your four danger zones.
+# What this script does
+# 1. Loads the towns (from 01_data_prep, built from GeoNames `MY.txt`) and our 12 elephant-crossing zones.
 # 2. Builds a **grid index** over the zones.
 # 3. Builds each leg as a path, samples points along it, and uses the grid to find which zones the leg touches. That result is cached as `(zone, entry_km, exit_km)`.
 # 4. Runs **time-aware NN**: from the current town, for each unvisited town pick the cheapest of *direct*, *wait-then-direct* or *detour (Route 185)*, then go to the one with the **earliest arrival**.
 # 5. Compares against a classic NN baseline, checks safety with an **independent brute-force verifier**, and runs the experiments.
 # 
-# Modelling assumptions (all editable in the config cell)
-# - Same-region legs (Perak to Perak, Kelantan to Kelantan) are straight-line x 1.3 and never touch a zone.
-# - Cross-region legs use **Route 4** (through the Route 4 zones) or the **Route 185 detour** via Gua Musang (which has its own zones, Z6 and Z7). Gateways: Gerik (Perak side), Jeli (Kelantan side).
+# Modelling assumptions (all set in CFG below)
+# - Same-region legs (Perak to Perak, Kelantan to Kelantan) are straight-line x 1.3. They are zone-checked too, because zones Z8-Z12 lie on local roads.
+# - Cross-region legs use **Route 4** (Gerik <-> Kampung Jeli, zones Z1-Z5) or the **Route 185 detour** (Simpang Pulai <-> Gua Musang, zones Z6 and Z7).
 # - One speed for everything, zone hours repeat daily, waiting only at towns.
 
 
@@ -55,12 +55,12 @@ CFG = dict(
     START_HOUR     = 8.0,
     # --- Route 4 corridor (Gerik -> Jeli), measured on Google Maps ---
     CORRIDOR_TOTAL_KM = 126.0,
-    KM0_OFFSET_KM     = 0.0,   # distance from Gerik town to zone-table km 0. See the sanity-check cell.
+    KM0_OFFSET_KM     = 0.0,   # distance from Gerik town to zone-table km 0. Section 3 checks this; 0 fits best.
     # --- Route 185 detour (zones Z6, Z7 from zones.csv), measured: Perak end -> Gua Musang ---
     R185_MAIN_KM   = 156.0,
 )
 
-# Gateway points (APPROXIMATE: overridden from your dataset if found, please verify)
+# Gateway points. Defaults only: gateways.csv (or the town data) overrides them when present.
 GATE = dict(
     GERIK=(5.4308, 101.1275),
     JELI=(5.7000, 101.8333),
@@ -70,7 +70,7 @@ GATE = dict(
 # Point the Google Maps checks in Experiment 5 were measured from (Changkat Jering, NSE). Not a gateway.
 CHANGKAT_JERING = (4.7800, 100.7800)
 
-# Your zone table (times as H:MM)
+# Fallback zone table (the 4 news-backed zones), used only if zones.csv is missing. Times as H:MM.
 ZONE_ROWS = [
  ("Z1","KM11 near Kuala Rui",11,9,13,5.46596,101.17158,1,"19:00","7:00","3 reported incidents (Jan 2021, 23 Oct 2024, 20 May 2025)"),
  ("Z2","KM31 near Tasik Banding",31,29,33,5.53333,101.26245,1,"19:00","7:00","Motorcyclist collided with elephant ~9pm (10 Dec 2025)"),
@@ -214,7 +214,7 @@ def sample_path(path, step):
 # 
 # Give the path to `MY.txt` or to the `01_data_prep` folder as the first argument. The script stops with an error if neither is found.
 # 
-# The Perak and Kelantan `admin1` codes are **auto-detected** from anchor towns (Ipoh, Kota Bharu) instead of being hard-coded, because the code in the brief should be double-checked. Verify the printout.
+# The Perak and Kelantan `admin1` codes are **auto-detected** from anchor towns (Ipoh, Kota Bharu) instead of being hard-coded, so a wrong code cannot silently select the wrong state. Only used in MY.txt mode; with 01_data_prep the state comes from towns.csv.
 
 
 GEO_COLS = ["geonameid","name","asciiname","alternatenames","lat","lon","fclass","fcode","cc","cc2",
@@ -252,7 +252,7 @@ if PREP_DIR:
 elif MY_PATH:
     raw = load_geonames(MY_PATH)
     pc, kc = code_of(raw, "Ipoh"), code_of(raw, "Kota Bharu")
-    print("Detected admin1 codes -> Perak:", pc, " Kelantan:", kc, "(verify against admin1CodesASCII.txt)")
+    print("Detected admin1 codes -> Perak:", pc, " Kelantan:", kc, "(expected Perak 07, Kelantan 03)")
     raw = raw[raw.admin1.isin([pc, kc])].copy()
     raw["region"] = np.where(raw.admin1 == pc, "P", "K")
     # override gateway coordinates from dataset where possible
@@ -277,7 +277,7 @@ display(towns.head())
 
 # ## 3. Corridor sanity check (km 0)
 # 
-# The zone table gives `road_km`, but not where km 0 is. This check puts the zones on a polyline from Gerik to Jeli and prints the implied **road km / straight-line km** for each stretch. A winding hill road should give roughly 1.2 to 1.7. A ratio far outside that means the km 0 assumption is wrong. Try `KM0_OFFSET_KM` = 0 and 12.5 and compare.
+# The zone table gives `road_km`, but not where km 0 is. This check puts the zones on a polyline from Gerik to Jeli and prints the implied **road km / straight-line km** for each stretch. A winding hill road should give roughly 1.2 to 1.7. A ratio far outside that means the km 0 assumption is wrong. We print both km 0 = Gerik (offset 0) and offset 12.5: offset 0 gives ratios of 1.26 to 1.77, while 12.5 gives 4.15 and 0.90, so we use 0.
 
 
 Z = zones_df.sort_values("road_km").reset_index(drop=True)
@@ -601,7 +601,7 @@ display(pd.DataFrame(rows))
 
 
 # ## Experiment 5: Does the model match Google Maps?
-# Your measured numbers: Bachok to the Changkat Jering end of Perak is **344 km** via Route 4 and **410 km** via Route 185, and Gua Musang to Bachok is **193 km**. This checks how far the gateway model is off, per leg.
+# Our Google Maps measurements: Bachok to Changkat Jering (Perak) is **344 km** via Route 4 and **410 km** via Route 185, and Gua Musang to Bachok is **193 km**. This checks how far our gateway model is off, per leg.
 
 
 bach = next(((r.lat, r.lon) for r in towns.itertuples() if r.town == "Bachok"), (6.0667, 102.4))

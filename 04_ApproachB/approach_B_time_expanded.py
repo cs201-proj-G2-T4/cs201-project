@@ -1,36 +1,31 @@
-"""
-# Approach B: Time-Expanded Graph + Dijkstra
-CS201 G2T4: Time-aware touring around elephant crossing zones (Perak and Kelantan)
+"""Approach B: time-expanded graph + Dijkstra (CS201 G2T4)
 
-Inputs:
-- 01_data_prep/towns.csv, 01_data_prep/distances_km.csv
-- data/zones(augmented data)/: zones.csv, zone_points.csv, routes.csv, gateways.csv
-- simulator.py: every tour is scored by simulate()
+Run from the repo root:  python 04_ApproachB/approach_B_time_expanded.py
+Uses 01_data_prep (towns, distances), the zone CSVs in data/zones(augmented data)
+and simulator.py (to score every tour).
 
-Builds a graph whose nodes are (place, time-of-day slot) pairs.
+Idea: every node is a (place, time slot) pair. A day has 144 slots of 10 min.
+Edges:
+- wait:  stay at the same place for 1 slot
+- drive: go from place i at slot s to place j at slot s+k, where k = driving time in slots.
+         A drive that passes a zone only exists for the slots where it's safe to leave.
+So unsafe drives are not in the graph at all, and every path Dijkstra finds is safe.
+Waiting is just another edge, so Dijkstra decides when it's worth waiting.
+Zone hours repeat daily, so slots wrap around at midnight and the graph size
+does not depend on how long the trip is.
 
-|     Edge      |             From → To             |  Cost   |                  Exists when               |
-|---------------|-----------------------------------|---------|--------------------------------------------|
-|      wait     |     (place, s) → (place, s+1)     | 1 slot  |                     always                 |
-|  local drive  |         (i, s) → (j, s+k)         | k slots |      only if is safe when started at s     |
-| highway drive | (gateway a, s) → (gateway b, s+k) | k slots | only if highway is safe when started at s  |
+Tour: from the current (town, time), Dijkstra stops at the first unvisited town it reaches,
+which is the town we can get to soonest. Go there, repeat, then go back to the start.
 
-Unsafe drives do not exist in the graph, so every path Dijkstra finds is safe and waiting is chosen automatically
-(another edge). Zone hours repeat daily, slots wrap around midnight and the graph has (places x slots_per_day) nodes whatever the trip length.
-
-- Tour (go somewhere and come back): from the current (town, time), Dijkstra stops at the first unvisited town it reaches, i.e. the town that can be reached soonest and safely. Go there and repeat (time-aware Nearest Neighbour), then return to the start.
-- trip time: minutes since 00:00 on day 0 of the trip. Keeps counting past 1440 (1807 = day 1, 06:07).
-    Variables ending in _min, and depart / arrive / t_in / t_out, are trip times.
-- time of day: minutes since midnight, 0..1439 (1140 = 19:00). Used for zone hours (active_from, active_to).
-- daily window active hours are half-open [active_from, active_to): 19:00 counts as night, 07:00 as day 
-    (same rule as the simulator's zone_active).
-- slot: one slot_min-minute step of the day, numbered 0 .. num_daily_slots - 1 (144 slots of 10 min).
-- node(place, slot): a plain tuple, compared and hashed as such by Dijkstra.
-- place: a number: 0 .. n_towns-1 are the towns (towns.csv order), n_towns and above are junctions.
-- km on a leg: distance driven from the start of that leg (0 at its start, leg_km at its end).
-- leg: between two places
-- route: between states
-- point: (lat, lon, km) where km is the road distance from the start of the leg / route.
+Words we use:
+- trip time: minutes since 00:00 on day 0 (keeps going past 1440, e.g. 1807 = day 1 06:07).
+  depart, arrive, t_in, t_out and anything ending in _min are trip times.
+- time of day: minutes since midnight, 0 to 1439 (1140 = 19:00). Used for zone hours.
+  Zone hours include the start but not the end, so 19:00 is night and 07:00 is day.
+- slot: one 10-minute step of the day, 0 to 143.
+- place: 0 to n_towns-1 are towns (towns.csv order), anything after that is a junction.
+- leg: a drive between two places. route: a highway between the two states.
+- point: (lat, lon, km), km = road distance from the start of the leg or route.
 """
 
 # 1. Settings
@@ -145,12 +140,10 @@ class Leg(TypedDict):
 ZONE_NEARBY_MARGIN_KM = 1.0  # quick check in zone_spans: skip a zone that is further than buffer + this from the leg
 
 def zone_spans(geom, L, zones, step_km=0.05):
-    """For a leg drawn as polyline geom [(lat, lon, km_from_start)] of length L km: the zones it passes, as
-    (zone id, enter km, exit km, active_from, active_to). Zones far from the leg are skipped quickly.
-
-    Walks the leg every step_km and keeps the spots within buffer_km of a zone
-    Widens the stretch by one step on each side to be safe.
-    Returns a list of ZoneSpan, one per zone the leg passes (assumes each zone is passed in one go)."""
+    """Which zones does this leg pass, and where? geom is the leg as [(lat, lon, km)], L is its length.
+    We skip zones that are far away, then walk the leg every step_km and keep the spots
+    within buffer_km of the zone. We add one step on each side to be safe.
+    Returns one ZoneSpan per zone (we assume the leg passes each zone in one go)."""
     line = dict(points=geom) # for km_to_zone to measure distance (needs a "points" list)
     spans = [] # list of tuples [id, end of the zone (dist from the start of the road), start of the zone (dist from the start of the road), active time start, active time end]
     for zone in zones:
@@ -164,15 +157,12 @@ def zone_spans(geom, L, zones, step_km=0.05):
     return spans
 
 class Network:
-    """The road map: every place and every leg between places. Contains where each leg passes a zone.
-    
-    Attributes
+    """The road map: every place, every leg between places, and where each leg passes a zone.
         places: list of {"name", "state", "latitude", "longitude"}
-        index(dict): place name -> place number
-        name(list): place number -> place name
-        n_towns: places 0 .. n_towns-1 are towns, the rest are junctions
-        legs(dict): place number -> list of Leg leaving that place
-        zones_on_route(dict): route_id -> list of zones that lie on that highway ([] for a zone-free road)
+        index: place name -> place number, name: place number -> place name
+        n_towns: places 0 to n_towns-1 are towns, the rest are junctions
+        legs: place number -> list of legs leaving that place
+        zones_on_route: route_id -> zones on that highway
     """
     def __init__(self, towns, dist_km, routes, gateways, zones, speed=SPEED_KMH):
         self.speed, self.n_towns = speed, len(towns)
@@ -251,7 +241,7 @@ def in_window(target, start, end):
     return target >= start or target < end
 
 def overlaps_daily_window(t_in, t_out, active_from, active_to):
-    """Does minutes since start of day 0 [t_in, t_out] overlap the daily window [active_from, active_to) (minutes since midnight)?"""
+    """Is the car in the zone (from t_in to t_out) at any time while the zone is active?"""
     if in_window(t_in % MIN_PER_DAY, active_from, active_to):
         return True
     minutes_until_it_starts = (active_from - t_in) % MIN_PER_DAY
@@ -314,7 +304,7 @@ class TimeExpandedGraph:
         return len(self.net.places) * self.num_daily_slots
     @property
     def n_edges(self):
-        """Number of edges a full adjacency list would hold (each wait and drive, at every slot it exists)."""
+        """How many edges there would be if we wrote out every wait and drive for every slot."""
         per_slot = sum(1 + len(v) for v in self.static.values())
         return per_slot * self.num_daily_slots + sum(sum(e.safe_at_slot) for v in self.timed.values() for e in v)
 
@@ -333,8 +323,8 @@ print()
 # 6. Dijkstra
 #region
 def dijkstra(graph, start, targets):
-    """Soonest safe arrival at ANY place in targets.
-    Returns (end_node, steps) with steps = [(from_node, to_node, road), ...], or None if unreachable."""
+    """Find the soonest safe way to reach any of the targets.
+    Returns (end node, steps) where steps = [(from node, to node, road), ...], or None if we can't get there."""
     best_cost = {start: (0, 0.0)}
     came_from = {start: None} 
     heap = [((0, 0.0), start)]
@@ -510,6 +500,7 @@ print(f"B is faster than the baseline in {(exp1.B_h < exp1.baseline_h - 0.01).su
 print(f"Average: baseline {exp1.baseline_h.mean():.2f} h, B {exp1.B_h.mean():.2f} h.")
 print()
 display(exp1)
+save_csv(exp1, "exp1_baseline_vs_B.csv")
 print("\n")
 
 plt.figure(figsize=(5.5, 5))
@@ -559,6 +550,7 @@ def departure_sweep(graph, frm, to):
 
 frm, to = net.index[EXP2_TRIP[0]], net.index[EXP2_TRIP[1]]
 exp2 = departure_sweep(graph, frm, to)
+save_csv(exp2, "exp2_departure_sweep.csv")
 
 print("\n---- Experiment 2: show diff arrival time for each departure time ----")
 display(exp2.groupby("choice").agg(departures=("depart_h", "size"), avg_hours=("hours", "mean")).round(2))
@@ -585,7 +577,7 @@ detour_zones = {z["id"] for z in net.zones_on_route[DETOUR_ROUTE]}       # {"Z6"
 
 no_detour_zone_net = edit_spans(net, lambda s: None if s.zone_id in detour_zones else s)
 exp2_detour = departure_sweep(TimeExpandedGraph(no_detour_zone_net), frm, to)
-save_table(exp2_detour, "exp2b_no_detour_zones.csv")
+save_csv(exp2_detour, "exp2b_no_detour_zones.csv")
 
 print(f"\n---- Experiment 2b: {EXP2_TRIP[0]} -> {EXP2_TRIP[1]} without {sorted(detour_zones)} ----")
 display(exp2_detour.groupby("choice").agg(departures=("depart_h", "size"), avg_hours=("hours", "mean")).round(2))
@@ -621,6 +613,7 @@ for slot in EXP3_SLOT_SIZES:
 print("\n---- Experiment 3a: slot size ----")
 exp3a = pd.DataFrame(rows)
 display(exp3a)
+save_csv(exp3a, "exp3a_slot_size.csv")
 print("\n")
 
 fig, ax = plt.subplots(1, 2, figsize=(10, 3.8))
@@ -670,6 +663,7 @@ for slot in EXP3_SLOT_SIZES:
 print("\n---- Experiment 3b: compact vs full adjacency list ----")
 exp3b = pd.DataFrame(rows)
 display(exp3b)
+save_csv(exp3b, "exp3b_memory.csv")
 print("\n")
 
 plt.figure(figsize=(5.5, 3.8))
@@ -687,20 +681,20 @@ save_fig("exp3b_memory.png")
 
 # ---- Experiment 4: scaling with the number of places ----
 # Build the Network on n towns.
-# Complexity: V = P*S nodes, compact memory O(P^2 + T*S), full adjacency list O(P^2 * S).
+# Complexity: P*S nodes. Our compact storage is O(P^2 + T*S), a full adjacency list would be O(P^2 * S).
 # Towns are sampled at random, in proportion per state. The gateway towns and the start town are always kept.
 EXP4_TOWN_COUNTS = (20, 40, 80, 120, len(towns))   # towns in the network
 EXP4_SEEDS       = (1, 2, 3)                       # random samples per size (one is enough for the full set)
 
 class CountingGraph(TimeExpandedGraph):
-    """Same graph. Counts how many nodes Dijkstra settles (it calls edges() once per settled node)."""
+    """Same graph, but counts how many nodes Dijkstra visits (edges() is called once per node)."""
     settled = 0
     def edges(self, node):
         self.settled += 1
         return super().edges(node)
 
 def sample_towns(n, seed):
-    """n town ids: the must-keep towns, plus a random sample from each state in proportion to its size."""
+    """Pick n towns: always keep the gateways and start town, the rest are random (same Perak/Kelantan mix)."""
     keep = {net.index[name] for name in list(gateways.name) + [SCENARIO[0]] if net.index[name] < len(towns)}
     if n >= len(towns):
         return sorted(towns.id)
@@ -737,6 +731,7 @@ exp4_med = exp4.groupby("places").median(numeric_only=True).reset_index()   # me
 
 print("\n----- Experiment 4: scaling with the number of places ----")
 display(exp4)
+save_csv(exp4, "exp4_scaling.csv")
 display(exp4_med[["places", "nodes", "edges", "timed_legs", "nodes_settled", "tour_s"]])
 
 S = graph.num_daily_slots

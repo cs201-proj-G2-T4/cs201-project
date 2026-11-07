@@ -1,25 +1,21 @@
-"""Approach A vs Approach B on the same start towns and start hours (CS201 G2T4).
+"""Compare Approach A and Approach B on the same start towns and start hours (CS201 G2T4)
 
-Usage (from the repo root):  python 05_comparison/compare_A_B.py
-Output: 05_comparison/outputs/compare_A_B.csv          one row per approach x start town x start hour
-        05_comparison/outputs/compare_A_B_summary.csv  averages per approach + one-time cost
+Run from the repo root:  python 05_comparison/compare_A_B.py   (takes about 7 min)
+Saves:
+  outputs/compare_A_B.csv          one row per approach, start town and start hour
+  outputs/compare_A_B_summary.csv  averages for each approach + how long the first tour takes
 
-How it works
-- It does NOT change approach_A_time_aware_nn.py or approach_B_time_expanded.py.
-  Each of those scripts runs its experiments as soon as it is loaded, so this script runs only the part
-  of each file BEFORE its experiments (the settings, data loading, data structures and functions):
-    A: everything before "# ## Experiment 1"
+How it works:
+- A and B both start running their experiments as soon as the file is loaded, so we can't just
+  import them. Instead we only run the top part of each file (settings, data, classes, functions):
+    A: everything before "# ---- Experiment 1"
     B: everything before the "---- Simulator run ----" section
-  That part is run with __file__ pointing at a temporary folder, so A and B do not create new
-  run folders inside 03_ApproachA/outputs or 04_ApproachB/outputs.
-- Both tours are scored by the SAME team simulator (simulator.py), so total time, km and unsafe legs
-  are directly comparable.
-- Cost is measured in two parts. Time and memory are measured on separate runs, because tracemalloc
-  slows code down several times.
-    one-time cost = everything until the FIRST tour is returned (start Ipoh 08:00).
-        A builds a cheap World, then computes and caches each leg's path and zone hits during the
-        first tour (lazy). B builds every leg's zone spans and the time-expanded graph up front (eager).
-    later tours   = every scenario after that. A reuses its warm World, B reuses its graph.
+  We point __file__ at a temp folder so this doesn't make new run folders in A's or B's outputs.
+- Both approaches' tours are checked with simulator.py, so the hours, km and unsafe legs are fair to compare.
+- Time and memory are measured in separate runs, because measuring memory slows the code down a lot.
+    First tour: A builds its World and then works out each leg's path and zones while it goes
+    (so the first tour is slow). B builds all the legs and the whole graph before it starts.
+    Later tours: A reuses what it saved, B reuses its graph.
 """
 import os, sys, time, tracemalloc, tempfile, statistics, datetime
 import pandas as pd
@@ -32,16 +28,16 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 START_TOWNS = ("Ipoh", "Kota Bharu", "Gerik", "Kampung Jeli")
 START_HOURS = (0, 6, 8, 12, 18)
-TIME_REPEATS = 3          # each tour is timed this many times; the median is reported
+TIME_REPEATS = 3          # time each tour 3 times and use the middle one
 
 A_FILE = os.path.join("03_ApproachA", "approach_A_time_aware_nn.py")
 B_FILE = os.path.join("04_ApproachB", "approach_B_time_expanded.py")
-A_CUT = "# ## Experiment 1"
+A_CUT = "# ---- Experiment 1"
 B_CUT = 'print("\\n---- Simulator run ----")'
 
 
 def load_definitions(path, cut, argv):
-    """Run the part of `path` before the line starting with `cut`. Returns its namespace."""
+    """Run the top of the file, up to the line that starts with cut, and return its variables."""
     with open(path, encoding="utf-8") as f:
         src = f.read()
     pos = src.find("\n" + cut)
@@ -55,7 +51,7 @@ def load_definitions(path, cut, argv):
         exec(compile(src[:pos], path, "exec"), ns)
     finally:
         sys.argv = old_argv
-        if sys.stdout is not old_stdout:          # both scripts copy print() into a run_log; undo that
+        if sys.stdout is not old_stdout:          # A and B send print() to their run_log too, so switch it back
             sys.stdout.flush()
             sys.stdout = old_stdout
             if "_log" in ns:
@@ -67,11 +63,11 @@ print("Loading Approach A (setup + functions only) ...")
 A = load_definitions(A_FILE, A_CUT, ["01_data_prep", os.path.join("data", "zones(augmented data)")])
 print("Loading Approach B (setup + functions only) ...")
 B = load_definitions(B_FILE, B_CUT, [])
-sim = B["sim"]        # team simulator, loaded by B with the shared data (start Ipoh, 60 km/h)
+sim = B["sim"]        # simulator.py, already loaded by B (start Ipoh, 60 km/h)
 assert A["W"].name == [t["name"] for t in sim.towns], "town order differs between Approach A and simulator.py"
 
 
-# ---------------------------------------------------------------- the two approaches as plain calls
+# ---- A and B as simple functions ----
 def a_build():
     return A["World"](A["towns"], A["zones_df"])
 
@@ -87,7 +83,7 @@ def b_tour(built, start, t0):
     return B["run_B"](net, start, t0, graph=graph)
 
 
-# ---------------------------------------------------------------- scoring with the team simulator
+# ---- score both with simulator.py ----
 def score_A(legs, start, t0):
     tour = [start] + [l["to"] for l in legs]
     waits = {l["frm"]: l["wait"] for l in legs if l["wait"] > 1e-9}
@@ -104,7 +100,7 @@ def score_B(legs, start, t0):
                 R4=s.get("R4", 0), R185=s.get("R185", 0))
 
 
-# ---------------------------------------------------------------- measuring
+# ---- measuring ----
 def timed(f, *args):
     t = time.perf_counter(); out = f(*args); return out, time.perf_counter() - t
 
@@ -112,15 +108,15 @@ def peak_mb(f, *args):
     tracemalloc.start(); out = f(*args); peak = tracemalloc.get_traced_memory()[1]; tracemalloc.stop()
     return out, peak / 2**20
 
-# 1) One-time cost: everything needed before the FIRST tour can be returned.
-#    A: build the World (cheap); the first tour then computes and caches each leg's path + zone hits.
-#    B: build the Network (every leg's zone spans) and the time-expanded graph; then the first tour.
-#    Peak memory is measured on a separate run (tracemalloc makes code several times slower).
+# 1) First tour: how long until the first tour is done, and how much memory that takes.
+#    A: build the World (fast), then the first tour works out and saves each leg's path and zones.
+#    B: build all the legs and the graph first, then the first tour.
+#    Memory is measured in a separate run because it slows things down.
 REF_TOWN, REF_HOUR = "Ipoh", 8
 ref = A["W"].name.index(REF_TOWN)
 print(f"Measuring one-time cost (first tour from {REF_TOWN} {REF_HOUR:02d}:00) ...")
 a_world, a_build_s = timed(a_build)
-_, a_first_s = timed(a_tour, a_world, ref, REF_HOUR * 60)       # a_world is now warm, reused below
+_, a_first_s = timed(a_tour, a_world, ref, REF_HOUR * 60)       # a_world has everything saved now, we reuse it below
 _, a_first_mb = peak_mb(lambda: a_tour(a_build(), ref, REF_HOUR * 60))
 b_built, b_build_s = timed(b_build)
 _, b_first_s = timed(b_tour, b_built, ref, REF_HOUR * 60)
@@ -133,7 +129,7 @@ cost = pd.DataFrame([
          time_to_first_tour_s=round(b_build_s + b_first_s, 2), peak_MB_to_first_tour=round(b_first_mb, 1),
          note="eager: every leg's zone spans and the slot table are built before any tour")])
 
-# 2) Every later tour, on the same start towns and hours (A reuses its warm World, B its graph).
+# 2) Every tour after that, same start towns and hours for both (A reuses its World, B its graph)
 rows = []
 for town in START_TOWNS:
     start = A["W"].name.index(town)
@@ -160,9 +156,9 @@ for town in START_TOWNS:
 df = pd.DataFrame(rows)
 df.to_csv(os.path.join(OUT_DIR, "compare_A_B.csv"), index=False)
 
-# per-scenario difference and summary
+# compare A and B per scenario, then average
 wide = df.pivot_table(index=["start_town", "start_hour"], columns="approach", values="total_h")
-diff = (wide.iloc[:, 1] - wide.iloc[:, 0])       # B minus A, hours
+diff = (wide.iloc[:, 1] - wide.iloc[:, 0])       # B minus A, in hours
 summary = df.groupby("approach").agg(
     scenarios=("total_h", "size"), avg_total_h=("total_h", "mean"), avg_wait_h=("wait_h", "mean"),
     unsafe_legs=("unsafe_legs", "sum"), median_later_tour_ms=("tour_ms", "median"),
